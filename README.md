@@ -24,7 +24,7 @@ According to **AAOIFI Shari'ah Standard No. 21 (Financial Papers and Shares)** (
         $$\frac{\text{Cash} + \text{Interest-Bearing Securities}}{\text{Denominator}} < 33\%$$
     *   **Receivables-to-Asset/Market Cap Screen:** Accounts receivable must not exceed 33% of its valuation:
         $$\frac{\text{Accounts Receivable}}{\text{Denominator}} < 33\%$$
-        *(Note: Some standards, such as the Dow Jones Islamic Market index, permit receivables up to 33%, whereas others like MSCI permit up to 33.33% and utilize total assets rather than market capitalization as the denominator. See the [MSCI Islamic Index Methodology](https://www.msci.com/eqb/methodology/meth_docs/MSCI_Islamic_Index_Methodology_Nov2019.pdf) and [S&P Dow Jones Shariah Indices Methodology](https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-shariah-indices.pdf)).*
+        *(Note: Some standards, such as the Dow Jones Islamic Market index, permit receivables up to 33%, whereas others like MSCI permit up to 33.33% and utilize total assets rather than market capitalization as the denominator. See the [MSCI Index Methodology Portal](https://www.msci.com/index-methodology) (historical reference: [MSCI Islamic Index Methodology Nov 2019](https://www.msci.com/eqb/methodology/meth_docs/MSCI_Islamic_Index_Methodology_Nov2019.pdf)) and the [S&P Dow Jones Shariah Indices Methodology](https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-shariah-indices.pdf)).*
 
 ### B. Asset-Class Specific Routing Rules (AAOIFI Standard No. 35)
 Calculating Zakat is governed by **AAOIFI Shari'ah Standard No. 35 (Zakah)**, which can be searched on the [AAOIFI E-Standards Portal](https://aaoifi.com/e-standards/?lang=en). The calculations apply rules differently across asset classes to ensure compliance:
@@ -65,6 +65,11 @@ Under the **AAOIFI Shari'ah Standard No. 35 (Zakah)**, Zakat on stocks differs e
 *   **Calendar adjustments:**
     *   **Lunar calendar Zakat rate:** **2.50%**. Hadith: [Sunan Ibn Majah 1790](https://sunnah.com/ibnmajah:1790).
     *   **Solar calendar Zakat rate:** Adjusted to **2.577%** ($2.5\% \times \frac{365.25}{354}$) to account for the extra 11 days of asset accumulation under Gregorian years. Reference: [AAOIFI Standard No. 35, Section 5/2/2](https://aaoifi.com/e-standards/?lang=en).
+
+---
+
+> [!IMPORTANT]
+> **Ethical & Shariah Compliance Notice:** This API is open-sourced to promote financial clarity and ease for Muslims worldwide. Any party copying, modifying, or rewriting this logic for public use bears a sacred ethical responsibility to ensure rigorous scholarly verification of their math. Misrepresenting calculations or neglecting edge cases misleads users in their worship and violates the spirit of this project.
 
 ---
 

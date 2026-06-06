@@ -193,7 +193,8 @@ def perform_compliance_screening(
     Standard catalog link: https://aaoifi.com/ss-21-financial-paper-shares-and-bonds/?lang=en
     Other index methodologies referenced for denominator/ratios:
     - S&P Dow Jones Shariah Indices: https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-shariah-indices.pdf
-    - MSCI Islamic Index Methodology: https://www.msci.com/eqb/methodology/meth_docs/MSCI_Islamic_Index_Methodology_Nov2019.pdf
+    - MSCI Islamic Index Methodology Portal: https://www.msci.com/index-methodology
+      (Historical PDF: https://www.msci.com/eqb/methodology/meth_docs/MSCI_Islamic_Index_Methodology_Nov2019.pdf)
     """
     # Load rules and overrides
     rules = load_yaml_config("business_rules.yaml")
