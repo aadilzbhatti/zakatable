@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zakatable"
+version = "1.0.0"
+description = "A Python client library and REST API for Shariah stock screening and Zakat calculations based on AAOIFI, Dow Jones, and MSCI standards."
+readme = "README.md"
+authors = [
+    { name = "Zakatable Open Source Project" }
+]
+requires-python = ">=3.8"
+dependencies = [
+    "yfinance>=0.2.38",
+    "pandas>=2.0.0",
+    "pyyaml>=6.0",
+    "pydantic>=2.0",
+    "requests>=2.31.0",
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.22.0"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Office/Business :: Financial :: Investment"
+]
+
+[project.scripts]
+zakatable-api = "zakatable.api.main:start_server"
+
+[tool.setuptools]
+packages = [
+    "zakatable",
+    "zakatable.config",
+    "zakatable.api"
+]
+
+[tool.setuptools.package-data]
+zakatable = [
+    "config/*.yaml",
+    "api/static/*",
+    "api/static/**/*"
+]

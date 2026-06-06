@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zakatable is an open-source Shariah stock screening & Zakat calculation API and dashboard. Audit US stocks under AAOIFI rules.">
+    <meta name="keywords" content="islamic finance, halal stocks, shariah compliance screening, zakat on stocks, zakatable assets, aaoifi, stock screener api">
+    <meta name="author" content="Zakatable Open Source Project">
+    <title>Zakatable — Shariah Stock Screener & Zakat Calculator API</title>
+    <!-- Premium Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <!-- Background Ambient Glowing Orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <!-- Navigation Header -->
+    <header class="glass-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">ZAKATABLE</span>
+                    <span class="logo-tag">ISLAMIC FINANCE API</span>
+                </div>
+            </div>
+            <nav class="nav-links">
+                <a href="#screener" class="nav-link active"><i class="fa-solid fa-magnifying-glass"></i> Screener</a>
+                <a href="#portfolio-calc" class="nav-link"><i class="fa-solid fa-wallet"></i> Portfolio Calculator</a>
+                <a href="#api-docs" class="nav-link"><i class="fa-solid fa-code"></i> API Reference</a>
+                <a href="https://github.com" target="_blank" class="nav-link"><i class="fa-brands fa-github"></i> GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Hero and Search Section -->
+        <section id="screener" class="hero-section">
+            <h1 class="hero-title">Shariah Stock Screener & <span class="gradient-text">Zakat Calculator</span></h1>
+            <p class="hero-subtitle">
+                An open-source financial API to calculate Shariah compliance ratios and net zakatable assets per share for US stocks based on AAOIFI, Dow Jones, and MSCI standards.
+            </p>
+            
+            <!-- Unified Search Console -->
+            <div class="search-container">
+                <form id="search-form" class="search-form">
+                    <div class="search-input-wrapper">
+                        <i class="fa-solid fa-chart-line search-icon"></i>
+                        <input type="text" id="ticker-search-input" placeholder="Enter US Stock Ticker (e.g., AAPL, MSFT, TSLA, BAC)..." autocomplete="off" required>
+                    </div>
+                    <button type="submit" id="search-btn" class="btn btn-primary">
+                        <span class="btn-text">Audit Stock</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+                <div class="quick-tags">
+                    <span class="tag-label">Popular Tickers:</span>
+                    <button class="quick-tag-btn" data-ticker="AAPL">AAPL</button>
+                    <button class="quick-tag-btn" data-ticker="MSFT">MSFT</button>
+                    <button class="quick-tag-btn" data-ticker="TSLA">TSLA</button>
+                    <button class="quick-tag-btn" data-ticker="DIS">DIS</button>
+                    <button class="quick-tag-btn" data-ticker="BAC">BAC</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loader Spinner -->
+        <div id="dashboard-loader" class="loader-container hidden">
+            <div class="spinner"></div>
+            <p>Fetching financial reports and calculating ratios...</p>
+        </div>
+
+        <!-- Dashboard Dashboard Layout -->
+        <section id="dashboard-section" class="dashboard-grid hidden">
+            
+            <!-- Left Side: Profile & Shariah Status -->
+            <div class="dashboard-col col-left">
+                <!-- Status Card -->
+                <div class="glass-card status-card" id="compliance-status-card">
+                    <div class="status-header">
+                        <span class="badge" id="ticker-badge">AAPL</span>
+                        <h2 id="company-name-title">Apple Inc.</h2>
+                    </div>
+                    <p class="company-sector-industry" id="company-sector-industry">Technology | Consumer Electronics</p>
+                    
+                    <div class="compliance-badge-wrapper">
+                        <div class="status-indicator" id="compliance-indicator">
+                            <i class="fa-solid fa-circle-check" id="compliance-icon"></i>
+                            <span id="compliance-status-text">SHARIAH COMPLIANT</span>
+                        </div>
+                    </div>
+                    
+                    <div class="price-info">
+                        <span class="price-label">Current Share Price</span>
+                        <span class="price-value" id="current-share-price">$0.00</span>
+                    </div>
+
+                    <div class="business-desc-wrapper">
+                        <h3>Business Activity Assessment</h3>
+                        <p class="business-summary" id="business-summary-text">Loading...</p>
+                        <div class="rule-box" id="business-activity-rule-box">
+                            <span class="rule-title">Qualitative Verdict:</span>
+                            <span class="rule-desc" id="business-activity-verdict">Passed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Controls Card -->
+                <div class="glass-card settings-card">
+                    <h3>Screening Customization</h3>
+                    <div class="form-group">
+                        <label for="select-compliance-standard"><i class="fa-solid fa-sliders"></i> Compliance Standard</label>
+                        <select id="select-compliance-standard" class="form-control">
+                            <option value="aaoifi" selected>AAOIFI (33% limit)</option>
+                            <option value="dow_jones">Dow Jones Islamic (33% limit)</option>
+                            <option value="msci">MSCI Islamic (33.33% limit)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="select-denominator"><i class="fa-solid fa-chart-pie"></i> Calculation Denominator</label>
+                        <select id="select-denominator" class="form-control">
+                            <option value="market_cap" selected>Current Market Capitalization</option>
+                            <option value="trailing_market_cap_12m">12-Month Avg Market Capitalization</option>
+                            <option value="trailing_market_cap_36m">36-Month Avg Market Capitalization</option>
+                            <option value="total_assets">Total Balance Sheet Assets</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary btn-block" id="btn-recalculate">
+                        <i class="fa-solid fa-rotate"></i> Recalculate Metrics
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side: Ratios & Zakat Breakdown -->
+            <div class="dashboard-col col-right">
+                
+                <!-- Financial Ratios Card -->
+                <div class="glass-card ratios-card">
+                    <h3>AAOIFI Financial Ratios Audit</h3>
+                    <p class="card-subtitle" id="denominator-label-desc">Calculated against: Current Market Capitalization</p>
+                    
+                    <div class="ratio-progress-grid">
+                        <!-- Debt Ratio -->
+                        <div class="ratio-item" id="ratio-item-debt">
+                            <div class="ratio-meta">
+                                <span class="ratio-name"><i class="fa-solid fa-hand-holding-dollar"></i> Interest-Bearing Debt</span>
+                                <span class="ratio-percentage" id="ratio-val-debt">0.00%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="progress-bar-debt" style="width: 0%"></div>
+                                <div class="marker" style="left: 33%" title="Threshold limit: 33%"></div>
+                            </div>
+                            <div class="ratio-footer">
+                                <span id="raw-val-debt">Raw Debt: $0.00</span>
+                                <span class="status-lbl" id="status-lbl-debt">Passed</span>
+                            </div>
+                        </div>
+
+                        <!-- Cash Ratio -->
+                        <div class="ratio-item" id="ratio-item-cash">
+                            <div class="ratio-meta">
+                                <span class="ratio-name"><i class="fa-solid fa-money-check-dollar"></i> Cash & Interest Securities</span>
+                                <span class="ratio-percentage" id="ratio-val-cash">0.00%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="progress-bar-cash" style="width: 0%"></div>
+                                <div class="marker" style="left: 33%" title="Threshold limit: 33%"></div>
+                            </div>
+                            <div class="ratio-footer">
+                                <span id="raw-val-cash">Raw Cash: $0.00</span>
+                                <span class="status-lbl" id="status-lbl-cash">Passed</span>
+                            </div>
+                        </div>
+
+                        <!-- Receivables Ratio -->
+                        <div class="ratio-item" id="ratio-item-receivables">
+                            <div class="ratio-meta">
+                                <span class="ratio-name"><i class="fa-solid fa-file-invoice-dollar"></i> Accounts Receivable</span>
+                                <span class="ratio-percentage" id="ratio-val-receivables">0.00%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="progress-bar-receivables" style="width: 0%"></div>
+                                <div class="marker" style="left: 33%" title="Threshold limit: 33%"></div>
+                            </div>
+                            <div class="ratio-footer">
+                                <span id="raw-val-receivables">Raw Receivables: $0.00</span>
+                                <span class="status-lbl" id="status-lbl-receivables">Passed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zakat Valuation Card -->
+                <div class="glass-card zakat-card">
+                    <h3>Zakat Metrics per Share</h3>
+                    <p class="card-subtitle">Detailed allocation based on the company's liquid balance sheet items.</p>
+                    
+                    <div class="zakat-methods-split">
+                        <!-- Balance Sheet Method -->
+                        <div class="zakat-method-box active">
+                            <div class="method-header">
+                                <span class="method-title">Balance Sheet Method</span>
+                                <span class="method-badge">Recommended</span>
+                            </div>
+                            <p class="method-desc">For long-term investors. Isolates liquid zakatable items (Cash + Receivables + Inventory - Current Liabilities).</p>
+                            
+                            <div class="metric-row">
+                                <span class="m-label">Net Zakatable Assets (Total)</span>
+                                <span class="m-val" id="zakat-total-net-assets">$0.00</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="m-label">Zakatable Assets / Share</span>
+                                <span class="m-val" id="zakat-asset-per-share">$0.00</span>
+                            </div>
+                            <div class="metric-row highlight">
+                                <span class="m-label">Zakat Due / Share (Lunar)</span>
+                                <span class="m-val text-gradient" id="zakat-lunar-per-share">$0.000000</span>
+                            </div>
+                            <div class="metric-row highlight">
+                                <span class="m-label">Zakat Due / Share (Solar)</span>
+                                <span class="m-val text-gradient" id="zakat-solar-per-share">$0.000000</span>
+                            </div>
+                        </div>
+
+                        <!-- 30% Proxy Method -->
+                        <div class="zakat-method-box">
+                            <div class="method-header">
+                                <span class="method-title">30% Market Cap Proxy</span>
+                                <span class="method-badge">Alternative</span>
+                            </div>
+                            <p class="method-desc">Scholarly shortcut when full audited balance sheet data is unavailable or for index tracking.</p>
+                            
+                            <div class="metric-row">
+                                <span class="m-label">Zakatable Assets / Share</span>
+                                <span class="m-val" id="proxy-asset-per-share">$0.00</span>
+                            </div>
+                            <div class="metric-row highlight">
+                                <span class="m-label">Zakat Due / Share (Lunar)</span>
+                                <span class="m-val" id="proxy-lunar-per-share">$0.000000</span>
+                            </div>
+                            <div class="metric-row highlight">
+                                <span class="m-label">Zakat Due / Share (Solar)</span>
+                                <span class="m-val" id="proxy-solar-per-share">$0.000000</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liquid Items Breakdown -->
+                    <div class="liquid-items-section">
+                        <h4>Underlying Balance Sheet Breakdown</h4>
+                        <div class="liquid-items-table">
+                            <div class="table-row">
+                                <span><i class="fa-solid fa-money-bill-wave"></i> Cash & Cash Equivalents</span>
+                                <strong id="val-breakdown-cash">$0.00</strong>
+                            </div>
+                            <div class="table-row">
+                                <span><i class="fa-solid fa-arrow-trend-up"></i> Short-Term Investments</span>
+                                <strong id="val-breakdown-investments">$0.00</strong>
+                            </div>
+                            <div class="table-row">
+                                <span><i class="fa-solid fa-file-invoice"></i> Accounts Receivable</span>
+                                <strong id="val-breakdown-receivables">$0.00</strong>
+                            </div>
+                            <div class="table-row">
+                                <span><i class="fa-solid fa-boxes-stacked"></i> Inventory</span>
+                                <strong id="val-breakdown-inventory">$0.00</strong>
+                            </div>
+                            <div class="table-row total-row">
+                                <span>Total Zakatable Liquid Assets</span>
+                                <strong id="val-breakdown-total-raw">$0.00</strong>
+                            </div>
+                            <div class="table-row liability-row">
+                                <span><i class="fa-solid fa-hand-holding-hand"></i> Less: Current Liabilities</span>
+                                <strong id="val-breakdown-liabilities">-$0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Portfolio Calculator Section -->
+        <section id="portfolio-calc" class="portfolio-section">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-wallet"></i> Portfolio Zakat Planner</h2>
+                <p>Add your holdings to construct a portfolio, audit Shariah compliance, and calculate exact lunar or solar Zakat.</p>
+            </div>
+            
+            <div class="portfolio-grid">
+                <!-- Add Asset Form & Asset Table -->
+                <div class="glass-card portfolio-list-card">
+                    <h3>Asset & Liability Inputs</h3>
+                    <div class="asset-input-tabs">
+                        <button type="button" class="asset-tab active" data-asset="cash"><i class="fa-solid fa-money-bill-wave"></i> Cash</button>
+                        <button type="button" class="asset-tab" data-asset="metals"><i class="fa-solid fa-coins"></i> Metals</button>
+                        <button type="button" class="asset-tab" data-asset="stocks"><i class="fa-solid fa-chart-line"></i> Stocks</button>
+                        <button type="button" class="asset-tab" data-asset="inventory"><i class="fa-solid fa-boxes-stacked"></i> Inventory</button>
+                        <button type="button" class="asset-tab" data-asset="realestate"><i class="fa-solid fa-building"></i> Real Estate</button>
+                        <button type="button" class="asset-tab" data-asset="liabilities"><i class="fa-solid fa-hand-holding-dollar"></i> Debts</button>
+                    </div>
+
+                    <div class="asset-panels">
+                        <!-- Cash Panel -->
+                        <div class="asset-panel active" id="panel-input-cash">
+                            <form id="form-add-cash" class="asset-add-form">
+                                <div class="form-row">
+                                    <div class="form-col amt-col">
+                                        <input type="number" id="cash-amount" placeholder="Cash Amount" min="0.01" step="any" required>
+                                    </div>
+                                    <div class="form-col currency-col">
+                                        <select id="cash-currency" class="form-control">
+                                            <option value="USD" selected>USD ($)</option>
+                                            <option value="EUR">EUR (€)</option>
+                                            <option value="GBP">GBP (£)</option>
+                                            <option value="SGD">SGD (S$)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col add-col">
+                                        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Add Cash</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Metals Panel -->
+                        <div class="asset-panel" id="panel-input-metals">
+                            <form id="form-add-metals" class="asset-add-form">
+                                <div class="form-row">
+                                    <div class="form-col metal-type-col">
+                                        <select id="metal-type" class="form-control">
+                                            <option value="gold" selected>Gold</option>
+                                            <option value="silver">Silver</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col weight-col">
+                                        <input type="number" id="metal-weight" placeholder="Weight" min="0.01" step="any" required>
+                                    </div>
+                                    <div class="form-col unit-col">
+                                        <select id="metal-unit" class="form-control">
+                                            <option value="grams" selected>Grams (g)</option>
+                                            <option value="ounces">Troy Ounces (oz)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col purity-col">
+                                        <select id="metal-purity" class="form-control">
+                                            <option value="24" selected>24K (Pure)</option>
+                                            <option value="22">22K</option>
+                                            <option value="21">21K</option>
+                                            <option value="18">18K</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col add-col">
+                                        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Add Metal</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Stocks Panel -->
+                        <div class="asset-panel" id="panel-input-stocks">
+                            <form id="form-add-stocks" class="asset-add-form">
+                                <div class="form-row">
+                                    <div class="form-col symbol-col">
+                                        <input type="text" id="stock-ticker" placeholder="Stock Ticker" required autocomplete="off">
+                                    </div>
+                                    <div class="form-col shares-col">
+                                        <input type="number" id="stock-shares" placeholder="Shares Count" min="0.0001" step="any" required>
+                                    </div>
+                                    <div class="form-col intent-col">
+                                        <select id="stock-intent" class="form-control">
+                                            <option value="holding" selected>Holding (Dividend/Passive)</option>
+                                            <option value="trading">Trading (Capital Gains/Active)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col add-col">
+                                        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Add Stock</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Inventory Panel -->
+                        <div class="asset-panel" id="panel-input-inventory">
+                            <form id="form-add-inventory" class="asset-add-form">
+                                <div class="form-row">
+                                    <div class="form-col amt-col">
+                                        <input type="number" id="inventory-value" placeholder="Wholesale Value" min="0.01" step="any" required>
+                                    </div>
+                                    <div class="form-col currency-col">
+                                        <select id="inventory-currency" class="form-control">
+                                            <option value="USD" selected>USD ($)</option>
+                                            <option value="EUR">EUR (€)</option>
+                                            <option value="GBP">GBP (£)</option>
+                                            <option value="SGD">SGD (S$)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col add-col">
+                                        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Add Inventory</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Real Estate Panel -->
+                        <div class="asset-panel" id="panel-input-realestate">
+                            <form id="form-add-realestate" class="asset-add-form">
+                                <div class="form-row">
+                                    <div class="form-col amt-col">
+                                        <input type="number" id="realestate-value" placeholder="Property Value" min="0.01" step="any" required>
+                                    </div>
+                                    <div class="form-col currency-col">
+                                        <select id="realestate-currency" class="form-control">
+                                            <option value="USD" selected>USD ($)</option>
+                                            <option value="EUR">EUR (€)</option>
+                                            <option value="GBP">GBP (£)</option>
+                                            <option value="SGD">SGD (S$)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col re-type-col">
+                                        <select id="realestate-type" class="form-control">
+                                            <option value="primary" selected>Primary Residence (Exempt)</option>
+                                            <option value="rental">Rental Property (Asset Exempt)</option>
+                                            <option value="flip">Property for Flipping (Taxable)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col add-col">
+                                        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Add Property</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Liabilities Panel -->
+                        <div class="asset-panel" id="panel-input-liabilities">
+                            <form id="form-add-liabilities" class="asset-add-form">
+                                <div class="form-row">
+                                    <div class="form-col amt-col">
+                                        <input type="number" id="liability-amount" placeholder="Debt Amount" min="0.01" step="any" required>
+                                    </div>
+                                    <div class="form-col currency-col">
+                                        <select id="liability-currency" class="form-control">
+                                            <option value="USD" selected>USD ($)</option>
+                                            <option value="EUR">EUR (€)</option>
+                                            <option value="GBP">GBP (£)</option>
+                                            <option value="SGD">SGD (S$)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-col debt-type-col">
+                                        <input type="text" id="liability-type" placeholder="Debt Label (e.g. Credit Card)" required autocomplete="off">
+                                    </div>
+                                    <div class="form-col add-col">
+                                        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-plus"></i> Add Debt</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive" style="margin-top: 1.5rem;">
+                        <table class="portfolio-table" id="portfolio-table">
+                            <thead>
+                                <tr>
+                                    <th>Asset / Debt</th>
+                                    <th>Class / Type</th>
+                                    <th>Original Value</th>
+                                    <th>Value (Base)</th>
+                                    <th>Zakatable Value</th>
+                                    <th>Zakat Due</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="portfolio-table-body">
+                                <tr class="empty-state">
+                                    <td colspan="7">No items in calculator. Add assets or debts above to calculate Zakat.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Summary & Total Calculator -->
+                <div class="glass-card portfolio-summary-card">
+                    <h3>Calculation Summary</h3>
+                    
+                    <div class="calculator-options">
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label for="summary-base-currency"><i class="fa-solid fa-coins"></i> Base Currency</label>
+                                <select id="summary-base-currency" class="form-control">
+                                    <option value="USD" selected>USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="SGD">SGD (S$)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="summary-nisab-standard"><i class="fa-solid fa-scale-balanced"></i> Nisab Standard</label>
+                                <select id="summary-nisab-standard" class="form-control">
+                                    <option value="silver" selected>Silver (612.36g)</option>
+                                    <option value="gold">Gold (87.48g)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="summary-calendar-type"><i class="fa-solid fa-calendar-days"></i> Calendar Type</label>
+                                <select id="summary-calendar-type" class="form-control">
+                                    <option value="gregorian" selected>Gregorian (Solar - 2.577%)</option>
+                                    <option value="hijri">Hijri (Lunar - 2.5%)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="toggle-group mt-3">
+                            <label>Stock Valuation Method</label>
+                            <div class="toggle-buttons">
+                                <button type="button" class="toggle-btn active" id="btn-toggle-method-bs">Balance Sheet</button>
+                                <button type="button" class="toggle-btn" id="btn-toggle-method-proxy">30% Proxy</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-metrics" style="margin-top: 1.5rem;">
+                        <div class="summary-metric">
+                            <span class="sum-lbl">Gross Zakatable Assets</span>
+                            <span class="sum-val" id="summary-gross-assets">$0.00</span>
+                        </div>
+                        <div class="summary-metric">
+                            <span class="sum-lbl">Allowed Liabilities</span>
+                            <span class="sum-val text-danger" id="summary-allowed-liabilities">-$0.00</span>
+                        </div>
+                        <div class="summary-metric">
+                            <span class="sum-lbl">Net Zakatable Wealth</span>
+                            <span class="sum-val" id="summary-net-wealth">$0.00</span>
+                        </div>
+                        <div class="summary-metric highlighted">
+                            <span class="sum-lbl" id="summary-zakat-due-label">Total Zakat Due</span>
+                            <span class="sum-val text-gradient" id="summary-total-zakat-due">$0.00</span>
+                        </div>
+                        
+                        <div class="summary-metric" style="border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 0.5rem; margin-top: 0.5rem; font-size: 0.8rem;">
+                            <span class="sum-lbl" id="summary-nisab-info-label">Nisab Threshold (Gold)</span>
+                            <span class="sum-val" id="summary-nisab-value">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="portfolio-compliance-alert alert-success hidden" id="portfolio-compliance-alert">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Nisab Met. Zakat is due on net wealth.</span>
+                    </div>
+
+                    <!-- Collapsible receipt for theological rationales -->
+                    <div class="collapsible-receipt">
+                        <div class="receipt-header" id="receipt-toggle">
+                            <span><i class="fa-solid fa-receipt"></i> Theological Rationales</span>
+                            <i class="fa-solid fa-chevron-down" id="receipt-chevron" style="transition: transform 0.3s;"></i>
+                        </div>
+                        <div class="receipt-content hidden" id="receipt-content">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary btn-block" id="btn-clear-portfolio" style="margin-top: 1.5rem;">
+                        <i class="fa-solid fa-trash-can"></i> Reset Calculator
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Developer API Section -->
+        <section id="api-docs" class="api-docs-section">
+            <div class="section-header">
+                <h2><i class="fa-solid fa-code"></i> Developer API Reference</h2>
+                <p>Integrate Shariah screening and Zakat calculations directly into your software. Self-documenting, JSON-based endpoints.</p>
+            </div>
+
+            <div class="glass-card api-docs-card">
+                <div class="api-docs-tabs">
+                    <button class="api-tab active" data-endpoint="screen">GET /api/v1/screen/{ticker}</button>
+                    <button class="api-tab" data-endpoint="portfolio">POST /api/v1/calculate-portfolio</button>
+                    <button class="api-tab" data-endpoint="config">GET /api/v1/config</button>
+                </div>
+                
+                <div class="api-content-wrapper">
+                    <div class="api-panel active" id="panel-screen">
+                        <h4>Get Ticker Compliance & Zakat Ratios</h4>
+                        <p class="endpoint-url">
+                            <span class="method get">GET</span>
+                            <code>http://localhost:8000/api/v1/screen/{ticker}</code>
+                        </p>
+                        
+                        <h5>Query Parameters</h5>
+                        <table class="api-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Default</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>standard</code></td>
+                                    <td>string</td>
+                                    <td><code>aaoifi</code></td>
+                                    <td>Screening rule standard: <code>aaoifi</code>, <code>dow_jones</code>, <code>msci</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>denominator</code></td>
+                                    <td>string</td>
+                                    <td><code>market_cap</code></td>
+                                    <td>Ratio denominator: <code>market_cap</code>, <code>total_assets</code>, <code>trailing_market_cap_12m</code>, <code>trailing_market_cap_36m</code></td>
+                                </tr>
+                                <tr>
+                                    <td><code>refresh</code></td>
+                                    <td>boolean</td>
+                                    <td><code>false</code></td>
+                                    <td>Bypasses server cache and pulls fresh data from Yahoo Finance</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h5>cURL Command Example</h5>
+                        <div class="code-block">
+                            <pre><code>curl -X 'GET' \
+  'http://localhost:8000/api/v1/screen/AAPL?standard=aaoifi&denominator=market_cap' \
+  -H 'accept: application/json'</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>&copy; 2026 Zakatable Open Source Project. Released under MIT License.</p>
+            <p>Calculations provided for informational purposes only. Consult with a qualified Shariah scholar for official religious rulings.</p>
+        </div>
+    </footer>
+
+    <!-- Frontend Interactive Code logic -->
+    <script src="/js/app.js"></script>
+</body>
+</html>

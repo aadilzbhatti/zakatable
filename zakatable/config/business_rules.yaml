@@ -1,0 +1,67 @@
+# Islamic Finance Screening - Business Rules Config
+# Default compliance standard: AAOIFI
+
+compliance_standards:
+  aaoifi:
+    name: "AAOIFI (Accounting & Auditing Org for Islamic Financial Institutions)"
+    debt_threshold: 0.33        # Debt / Denominator < 33%
+    cash_threshold: 0.33        # Cash + Interest Securities / Denominator < 33%
+    receivables_threshold: 0.33 # Receivables / Denominator < 33% (some use 49%)
+    max_non_halal_revenue: 0.05 # Non-halal revenue / Total revenue < 5%
+  
+  dow_jones:
+    name: "Dow Jones Islamic Market Index"
+    debt_threshold: 0.33
+    cash_threshold: 0.33
+    receivables_threshold: 0.33
+    max_non_halal_revenue: 0.05
+
+  msci:
+    name: "MSCI Islamic Index"
+    debt_threshold: 0.33
+    cash_threshold: 0.3375       # Cash + Interest Securities / Denominator < 33.33%
+    receivables_threshold: 0.33  # Receivables / Denominator < 33.33%
+    max_non_halal_revenue: 0.05
+
+default_standard: "aaoifi"
+default_denominator: "market_cap" # Options: "market_cap", "total_assets"
+
+# Industries and Sectors automatically flagged as Haram (Business Activity)
+haram_sectors:
+  - "Financial Services" # Conventional banking, insurance, credit cards
+  - "Financials"
+
+haram_industries:
+  # Alcohol
+  - "Beverages—Brewers"
+  - "Beverages-Brewers"
+  - "Beverages—Wineries & Distilleries"
+  - "Beverages-Wineries & Distilleries"
+  
+  # Gambling & Casinos
+  - "Gambling"
+  - "Resorts & Casinos"
+  
+  # Tobacco
+  - "Tobacco"
+  
+  # Conventional Banking & Insurance
+  - "Banks—Diversified"
+  - "Banks-Diversified"
+  - "Banks—Regional"
+  - "Banks-Regional"
+  - "Insurance—Life"
+  - "Insurance-Life"
+  - "Insurance—Property & Casualty"
+  - "Insurance-Property & Casualty"
+  - "Insurance—Specialty"
+  - "Insurance-Specialty"
+  - "Insurance—Brokers"
+  - "Insurance-Brokers"
+  - "Credit Services"
+  
+  # Defense / Weapons (often screened by some standards, though debated)
+  - "Aerospace & Defense"
+  
+  # Adult Entertainment (sometimes categorized under Entertainment/Media, usually handled via overrides)
+  - "Adult Entertainment"

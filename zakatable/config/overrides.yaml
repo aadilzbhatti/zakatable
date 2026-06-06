@@ -1,0 +1,42 @@
+# Manual overrides for Shariah compliance status and business activity analysis
+# status can be: "halal", "haram", "uncertain"
+# non_compliant_revenue_pct is a decimal value (e.g., 0.02 = 2%)
+
+AAPL:
+  status: "halal"
+  non_compliant_revenue_pct: 0.00
+  notes: "Primary business is consumer electronics and services. No significant non-halal revenues."
+
+MSFT:
+  status: "halal"
+  non_compliant_revenue_pct: 0.01 # minor Xbox/games content interest
+  notes: "Primary business is software, cloud, and enterprise services. Under 5% non-halal revenue."
+
+DIS:
+  status: "haram"
+  non_compliant_revenue_pct: 0.15 # estimated media and theme park non-compliant revenue
+  reason: "Substantial revenue from non-compliant entertainment, media distribution, and alcohol/gambling services in resorts."
+  notes: "Fails qualitative business activity screen due to nature of entertainment products."
+
+JPM:
+  status: "haram"
+  non_compliant_revenue_pct: 1.00
+  reason: "Conventional interest-bearing banking institution."
+  notes: "Fails business activity screen automatically."
+
+BAC:
+  status: "haram"
+  non_compliant_revenue_pct: 1.00
+  reason: "Conventional interest-bearing banking institution."
+  notes: "Fails business activity screen automatically."
+
+KO:
+  status: "halal"
+  non_compliant_revenue_pct: 0.00
+  notes: "Beverage manufacturer. Alcohol products are not a primary business activity and are separate."
+
+PM:
+  status: "haram"
+  non_compliant_revenue_pct: 1.00
+  reason: "Tobacco manufacturer."
+  notes: "Fails business activity screen automatically."
