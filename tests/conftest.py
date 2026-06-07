@@ -157,7 +157,7 @@ def mock_yfinance(monkeypatch, mock_financial_data):
     """
     Monkeypatches yfinance.Ticker to prevent outbound HTTP queries and return mock data.
     """
-    def mock_ticker_init(symbol):
+    def mock_ticker_init(symbol, *args, **kwargs):
         return MockTicker(symbol, mock_financial_data)
         
     monkeypatch.setattr("yfinance.Ticker", mock_ticker_init)

@@ -1,7 +1,7 @@
 import os
-import yfinance as yf
 from decimal import Decimal
 from typing import Optional
+from zakatable.session import get_yf_ticker
 from zakatable import cache
 
 DEFAULT_FX_EXPIRY = 3600  # Cache exchange rates for 1 hour
@@ -35,7 +35,7 @@ def get_exchange_rate(source: str, target: str, force_refresh: bool = False) -> 
     # Try direct conversion ticker (e.g. EURUSD=X)
     ticker_name = f"{source}{target}=X"
     try:
-        ticker = yf.Ticker(ticker_name)
+        ticker = get_yf_ticker(ticker_name)
         # Fetch current price
         info = ticker.info
         rate = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose")
@@ -65,7 +65,7 @@ def get_exchange_rate(source: str, target: str, force_refresh: bool = False) -> 
     if target == "USD":
         try:
             invert_ticker = f"USD{source}=X"
-            ticker = yf.Ticker(invert_ticker)
+            ticker = get_yf_ticker(invert_ticker)
             rate = ticker.info.get("currentPrice") or ticker.info.get("regularMarketPrice")
             if rate is not None and rate > 0:
                 rate_decimal = Decimal("1.0") / Decimal(str(rate))
@@ -77,7 +77,7 @@ def get_exchange_rate(source: str, target: str, force_refresh: bool = False) -> 
     if source == "USD":
         try:
             invert_ticker = f"{target}USD=X"
-            ticker = yf.Ticker(invert_ticker)
+            ticker = get_yf_ticker(invert_ticker)
             rate = ticker.info.get("currentPrice") or ticker.info.get("regularMarketPrice")
             if rate is not None and rate > 0:
                 rate_decimal = Decimal("1.0") / Decimal(str(rate))

@@ -1,7 +1,7 @@
-import yfinance as yf
 from decimal import Decimal
 from zakatable import cache
 from zakatable.forex import get_exchange_rate
+from zakatable.session import get_yf_ticker
 
 DEFAULT_COMMODITY_EXPIRY = 3600  # Cache spot prices for 1 hour
 GRAMS_PER_TROY_ONCE = Decimal("31.1034768")
@@ -36,7 +36,7 @@ def get_commodity_spot_price(metal: str, force_refresh: bool = False) -> Decimal
             
     ticker_name = "GC=F" if metal == "gold" else "SI=F"
     try:
-        ticker = yf.Ticker(ticker_name)
+        ticker = get_yf_ticker(ticker_name)
         info = ticker.info
         
         # Spot futures price per troy ounce

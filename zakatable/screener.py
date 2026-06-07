@@ -3,6 +3,7 @@ import yaml
 import yfinance as yf
 import pandas as pd
 import numpy as np
+from zakatable.session import get_yf_ticker
 from typing import Dict, Any, List, Optional
 from zakatable import cache
 
@@ -81,7 +82,7 @@ def fetch_and_process_ticker(ticker_symbol: str, force_refresh: bool = False) ->
             
     # 2. Fetch live data
     try:
-        ticker_obj = yf.Ticker(ticker_symbol)
+        ticker_obj = get_yf_ticker(ticker_symbol)
         info = ticker_obj.info
         
         if not info or "shortName" not in info:
