@@ -3,6 +3,7 @@ import yaml
 import yfinance as yf
 import pandas as pd
 import numpy as np
+import requests
 from zakatable.session import get_yf_ticker
 from typing import Dict, Any, List, Optional
 from zakatable import cache
@@ -81,25 +82,105 @@ def fetch_and_process_ticker(ticker_symbol: str, force_refresh: bool = False) ->
             return cached["data"]
             
     # 2. Fetch live data
+    info = None
+    bs = None
+    price = 0.0
+    shares_outstanding = 1.0
+    market_cap = 0.0
+    
     try:
         ticker_obj = get_yf_ticker(ticker_symbol)
-        info = ticker_obj.info
         
-        if not info or "shortName" not in info:
-            # Try to fetch history just to see if ticker exists
+        # A. Try fetching info from yfinance
+        try:
+            info = ticker_obj.info
+        except Exception as e:
+            print(f"yfinance info fetch failed for {ticker_symbol}: {e}")
+            info = None
+            
+        # B. Fallback to Yahoo Search API if info failed or crumb blocked
+        if not info or not isinstance(info, dict) or "shortName" not in info:
+            try:
+                r = requests.get(
+                    f"https://query2.finance.yahoo.com/v1/finance/search?q={ticker_symbol}", 
+                    headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}, 
+                    timeout=5
+                )
+                search_data = r.json()
+                quotes = search_data.get("quotes", [])
+                if quotes:
+                    q = quotes[0]
+                    info = {
+                        "symbol": ticker_symbol,
+                        "longName": q.get("longname") or q.get("shortname") or ticker_symbol,
+                        "shortName": q.get("shortname") or ticker_symbol,
+                        "sector": q.get("sector") or q.get("sectorDisp") or "N/A",
+                        "industry": q.get("industry") or q.get("industryDisp") or "N/A",
+                        "longBusinessSummary": f"Business details for {ticker_symbol} fetched via Yahoo Search API."
+                    }
+            except Exception as search_err:
+                print(f"Yahoo Search API fallback failed for {ticker_symbol}: {search_err}")
+                
+            if not info:
+                info = {
+                    "symbol": ticker_symbol,
+                    "longName": ticker_symbol,
+                    "shortName": ticker_symbol,
+                    "sector": "N/A",
+                    "industry": "N/A",
+                    "longBusinessSummary": "Corporate profile data currently unavailable."
+                }
+                
+        # C. Fetch current price from yfinance history (highly resilient chart endpoint, no crumb required)
+        try:
             hist = ticker_obj.history(period="1d")
-            if hist.empty:
-                raise ValueError(f"Ticker symbol '{ticker_symbol}' not found or invalid.")
-        
-        # Access annual balance sheet
-        bs_annual = ticker_obj.balance_sheet
-        
-        # If annual balance sheet is empty, fall back to quarterly
-        bs = bs_annual if (bs_annual is not None and not bs_annual.empty) else ticker_obj.quarterly_balance_sheet
-        
+            if not hist.empty:
+                price = float(hist["Close"].iloc[-1])
+                shares_outstanding_val = info.get("sharesOutstanding")
+                if shares_outstanding_val:
+                    shares_outstanding = float(shares_outstanding_val)
+                    market_cap = price * shares_outstanding
+        except Exception as hist_err:
+            print(f"yfinance history fetch failed for {ticker_symbol}: {hist_err}")
+            
+        # D. Price fallbacks
+        if price == 0.0:
+            try:
+                chart_url = f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker_symbol}"
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                }
+                r = requests.get(chart_url, headers=headers, timeout=5)
+                if r.status_code == 200:
+                    chart_json = r.json()
+                    meta = chart_json.get("chart", {}).get("result", [{}])[0].get("meta", {})
+                    price = float(meta.get("regularMarketPrice") or meta.get("previousClose") or 0.0)
+                    
+                    if meta.get("longName") and info.get("longName") == ticker_symbol:
+                        info["longName"] = meta.get("longName")
+                    if meta.get("shortName") and info.get("shortName") == ticker_symbol:
+                        info["shortName"] = meta.get("shortName")
+            except Exception as chart_err:
+                print(f"Direct chart API price fallback failed for {ticker_symbol}: {chart_err}")
+
+        if price == 0.0:
+            price = float(info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose") or 0.0)
+            shares_outstanding_val = info.get("sharesOutstanding") or 1.0
+            shares_outstanding = float(shares_outstanding_val) if shares_outstanding_val else 1.0
+            market_cap = float(info.get("marketCap") or 0.0)
+            if not market_cap and price and shares_outstanding:
+                market_cap = price * shares_outstanding
+                
+        # E. Fetch balance sheet data
+        try:
+            bs_annual = ticker_obj.balance_sheet
+            bs = bs_annual if (bs_annual is not None and not bs_annual.empty) else ticker_obj.quarterly_balance_sheet
+        except Exception as bs_err:
+            print(f"yfinance balance sheet fetch failed for {ticker_symbol}: {bs_err}")
+            bs = None
+            
         # Sort columns to ensure newest date is first
         if bs is not None and not bs.empty:
-            # convert column labels to string/datetime and sort descending
             bs = bs.reindex(columns=sorted(bs.columns, reverse=True))
             
         # Parse out critical financial details
@@ -122,7 +203,6 @@ def fetch_and_process_ticker(ticker_symbol: str, force_refresh: bool = False) ->
         total_liabilities = get_row_value(bs, total_liab_keys, 0.0)
         
         # Parse total debt
-        # First check if yfinance provides 'Total Debt' in info or BS
         total_debt = info.get("totalDebt")
         if total_debt is None:
             total_debt = get_row_value(bs, ["Total Debt", "TotalDebt"], None)
@@ -135,19 +215,12 @@ def fetch_and_process_ticker(ticker_symbol: str, force_refresh: bool = False) ->
             lt_debt = get_row_value(bs, lt_debt_keys, 0.0)
             total_debt = st_debt + lt_debt
             
-        # Basic fields from info
-        shares_outstanding = info.get("sharesOutstanding")
+        # Final shares validation
         if not shares_outstanding or shares_outstanding == 0:
-            # Fallback from balance sheet share count if available
             shares_outstanding = get_row_value(bs, ["Share Factor", "Share Cap", "Ordinary Shares Number"], 1.0)
             if shares_outstanding == 1.0:
                 shares_outstanding = info.get("impliedSharesOutstanding", 1.0)
                 
-        price = info.get("currentPrice") or info.get("regularMarketPrice") or info.get("previousClose") or 0.0
-        market_cap = info.get("marketCap")
-        if not market_cap and price and shares_outstanding:
-            market_cap = price * shares_outstanding
-            
         # Compile processed data dictionary
         processed_data = {
             "symbol": ticker_symbol,
@@ -173,6 +246,7 @@ def fetch_and_process_ticker(ticker_symbol: str, force_refresh: bool = False) ->
             # Fetch historical average prices to support trailing market caps
             "trailing_market_cap_12m": calculate_trailing_market_cap(ticker_obj, shares_outstanding, 12),
             "trailing_market_cap_36m": calculate_trailing_market_cap(ticker_obj, shares_outstanding, 36),
+            "financials_available": bs is not None and not bs.empty
         }
         
         # Save to cache
@@ -181,6 +255,8 @@ def fetch_and_process_ticker(ticker_symbol: str, force_refresh: bool = False) ->
         
     except Exception as e:
         print(f"Error fetching data for ticker {ticker_symbol}: {e}")
+        import traceback
+        traceback.print_exc()
         raise ValueError(f"Failed to fetch stock data: {str(e)}")
 
 def perform_compliance_screening(

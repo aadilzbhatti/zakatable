@@ -93,5 +93,62 @@ def test_zakat_metrics_positive():
     
     # Lunar Zakat due = $30.00 * 2.5% = $0.75
     assert bs["zakat_due_per_share_lunar"] == 0.75
-    # Solar Zakat due = $30.00 * 2.577% = $0.7731
     assert round(bs["zakat_due_per_share_solar"], 4) == 0.7731
+
+def test_direct_chart_price_fallback(monkeypatch):
+    # Mock yfinance to fail with rate limiting exceptions
+    class FailingTicker:
+        def __init__(self, symbol, session=None):
+            self.symbol = symbol
+        @property
+        def info(self):
+            raise Exception("Rate limited")
+        def history(self, *args, **kwargs):
+            raise Exception("Rate limited")
+        @property
+        def balance_sheet(self):
+            raise Exception("Rate limited")
+            
+    monkeypatch.setattr(screener, "get_yf_ticker", lambda symbol: FailingTicker(symbol))
+    
+    # Mock requests.get responses
+    class MockResponse:
+        def __init__(self, json_data, status_code=200):
+            self.json_data = json_data
+            self.status_code = status_code
+        def json(self):
+            return self.json_data
+            
+    def mock_get(url, *args, **kwargs):
+        if "finance/search" in url:
+            return MockResponse({
+                "quotes": [{
+                    "longname": "Apple Inc.",
+                    "shortname": "Apple",
+                    "sector": "Technology",
+                    "industry": "Consumer Electronics"
+                }]
+            })
+        elif "finance/chart" in url:
+            return MockResponse({
+                "chart": {
+                    "result": [{
+                        "meta": {
+                            "regularMarketPrice": 175.50,
+                            "longName": "Apple Inc.",
+                            "shortName": "Apple"
+                        }
+                    }]
+                }
+            })
+        return MockResponse({}, 404)
+        
+    monkeypatch.setattr(screener.requests, "get", mock_get)
+    
+    # Run fetch_and_process_ticker
+    data = screener.fetch_and_process_ticker("AAPL", force_refresh=True)
+    
+    # Verify fallback price, company name, and compliance status
+    assert data["price"] == 175.50
+    assert data["company_name"] == "Apple Inc."
+    assert data["financials_available"] is False

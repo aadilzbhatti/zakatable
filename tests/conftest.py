@@ -122,6 +122,7 @@ class MockTicker:
         else:
             self.info = {
                 "symbol": self.symbol,
+                "shortName": self.mock_data.get("company_name", self.symbol),
                 "longName": self.mock_data.get("company_name", self.symbol),
                 "sector": self.mock_data.get("sector"),
                 "industry": self.mock_data.get("industry"),
