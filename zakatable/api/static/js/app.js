@@ -264,23 +264,27 @@ function showLoader(show) {
 // --- Render Dashboard UI ---
 function renderAuditDashboard(data) {
     // 1. Profile Information
-    tickerBadge.textContent = data.ticker;
-    companyTitle.textContent = data.company_name;
-    sectorIndustry.textContent = `${data.sector} | ${data.industry}`;
-    currentSharePrice.textContent = formatCurrency(data.price);
+    if (tickerBadge) tickerBadge.textContent = data.ticker;
+    if (companyTitle) companyTitle.textContent = data.company_name;
+    if (sectorIndustry) sectorIndustry.textContent = `${data.sector} | ${data.industry}`;
+    if (currentSharePrice) currentSharePrice.textContent = formatCurrency(data.price);
     // Update compliance verdict rationale
-    const denomUsedLabel = data.compliance.denominator_used;
-    complianceVerdictRationale.textContent = generateComplianceRationale(data.compliance, data.compliance.compliance_standard, denomUsedLabel);
+    if (complianceVerdictRationale) {
+        const denomUsedLabel = data.compliance.denominator_used;
+        complianceVerdictRationale.textContent = generateComplianceRationale(data.compliance, data.compliance.compliance_standard, denomUsedLabel);
+    }
 
     // Overall Compliance Badge
-    if (data.compliance.is_compliant) {
-        complianceIndicator.className = "status-indicator halal";
-        complianceIcon.className = "fa-solid fa-circle-check";
-        complianceStatusText.textContent = "SHARIAH COMPLIANT";
-    } else {
-        complianceIndicator.className = "status-indicator haram";
-        complianceIcon.className = "fa-solid fa-triangle-exclamation";
-        complianceStatusText.textContent = "NON-COMPLIANT (HARAM)";
+    if (complianceIndicator && complianceIcon && complianceStatusText) {
+        if (data.compliance.is_compliant) {
+            complianceIndicator.className = "status-indicator halal";
+            complianceIcon.className = "fa-solid fa-circle-check";
+            complianceStatusText.textContent = "SHARIAH COMPLIANT";
+        } else {
+            complianceIndicator.className = "status-indicator haram";
+            complianceIcon.className = "fa-solid fa-triangle-exclamation";
+            complianceStatusText.textContent = "NON-COMPLIANT (HARAM)";
+        }
     }
 
     // 2. Financial Ratios Audit
@@ -437,17 +441,17 @@ async function calculatePortfolio() {
         
         // Render Summary Stats
         const baseCurrency = payload.settings.base_currency;
-        summaryGrossAssets.textContent = formatCurrency(result.gross_zakatable_assets, 2, baseCurrency);
-        summaryAllowedLiabilities.textContent = `-${formatCurrency(result.allowed_liabilities, 2, baseCurrency)}`;
-        summaryNetWealth.textContent = formatCurrency(result.net_zakatable_wealth, 2, baseCurrency);
-        summaryTotalZakatDue.textContent = formatCurrency(result.total_zakat_due, 2, baseCurrency);
+        if (summaryGrossAssets) summaryGrossAssets.textContent = formatCurrency(result.gross_zakatable_assets, 2, baseCurrency);
+        if (summaryAllowedLiabilities) summaryAllowedLiabilities.textContent = `-${formatCurrency(result.allowed_liabilities, 2, baseCurrency)}`;
+        if (summaryNetWealth) summaryNetWealth.textContent = formatCurrency(result.net_zakatable_wealth, 2, baseCurrency);
+        if (summaryTotalZakatDue) summaryTotalZakatDue.textContent = formatCurrency(result.total_zakat_due, 2, baseCurrency);
         
         const calendarLabel = payload.settings.calendar_type === "gregorian" ? "Solar (2.577%)" : "Lunar (2.5%)";
-        summaryZakatDueLabel.textContent = `Total Zakat Due (${calendarLabel})`;
+        if (summaryZakatDueLabel) summaryZakatDueLabel.textContent = `Total Zakat Due (${calendarLabel})`;
         
         const nisabMetalLabel = payload.settings.nisab_standard.charAt(0).toUpperCase() + payload.settings.nisab_standard.slice(1);
-        summaryNisabInfoLabel.textContent = `Nisab Threshold (${nisabMetalLabel} Standard)`;
-        summaryNisabValue.textContent = `${formatCurrency(result.nisab_value_base, 2, baseCurrency)} (based on ${result.nisab_threshold_used}g)`;
+        if (summaryNisabInfoLabel) summaryNisabInfoLabel.textContent = `Nisab Threshold (${nisabMetalLabel} Standard)`;
+        if (summaryNisabValue) summaryNisabValue.textContent = `${formatCurrency(result.nisab_value_base, 2, baseCurrency)} (based on ${result.nisab_threshold_used}g)`;
         
         // Render compliance alerts and collapsible receipt
         portfolioComplianceAlert.classList.remove("hidden");
@@ -575,13 +579,13 @@ function renderEmptyPortfolio() {
             <td colspan="7">No items in calculator. Add assets or debts above to calculate Zakat.</td>
         </tr>
     `;
-    summaryGrossAssets.textContent = "$0.00";
-    summaryAllowedLiabilities.textContent = "-$0.00";
-    summaryNetWealth.textContent = "$0.00";
-    summaryTotalZakatDue.textContent = "$0.00";
-    summaryNisabValue.textContent = "$0.00";
-    portfolioComplianceAlert.classList.add("hidden");
-    receiptContent.innerHTML = "<p style='color: var(--text-muted); font-size: 0.8rem;'>No items to show.</p>";
+    if (summaryGrossAssets) summaryGrossAssets.textContent = "$0.00";
+    if (summaryAllowedLiabilities) summaryAllowedLiabilities.textContent = "-$0.00";
+    if (summaryNetWealth) summaryNetWealth.textContent = "$0.00";
+    if (summaryTotalZakatDue) summaryTotalZakatDue.textContent = "$0.00";
+    if (summaryNisabValue) summaryNisabValue.textContent = "$0.00";
+    if (portfolioComplianceAlert) portfolioComplianceAlert.classList.add("hidden");
+    if (receiptContent) receiptContent.innerHTML = "<p style='color: var(--text-muted); font-size: 0.8rem;'>No items to show.</p>";
 }
 
 // Global scope binds for row click deletion
