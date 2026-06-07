@@ -88,7 +88,71 @@ The application is structured as a modular Python package with a FastAPI REST AP
 
 ---
 
-## 3. API Endpoint Reference
+## 3. Python Library Usage
+
+Zakatable can be installed as a local Python package and used programmatically inside your own scripts or applications.
+
+### Installation
+You can install the package in editable mode from the repository root:
+```bash
+pip install -e .
+```
+
+### Local Stock Screening Example
+Check compliance and purification metrics for any stock ticker locally:
+```python
+from zakatable import screen_stock
+
+# Screen a ticker using default standards (AAOIFI)
+result = screen_stock("AAPL")
+
+print(f"Ticker: {result['ticker']}")
+print(f"Is Compliant: {result['compliance']['is_compliant']}")
+print(f"Purification Ratio: {result['zakat']['purification_ratio']}")
+print(f"Total Debt/Valuation: {result['compliance']['financial_screens']['debt']['ratio']:.2%}")
+```
+
+### Local Portfolio Zakat Calculation Example
+Initialize `ZakatCalculator` to compute obligations for cash, metals, stocks, and deduct liabilities:
+```python
+from zakatable import ZakatCalculator
+
+calculator = ZakatCalculator()
+
+result = calculator.calculate_portfolio(
+    settings={
+        "base_currency": "USD",
+        "nisab_standard": "silver",  # "gold" or "silver"
+        "calendar_type": "gregorian"  # "lunar" or "gregorian"
+    },
+    assets={
+        "cash": [
+            {"amount": 10000.0, "currency": "USD"},
+            {"amount": 5000.0, "currency": "EUR"}
+        ],
+        "precious_metals": [
+            {"metal": "gold", "weight": 20.0, "purity": 22.0, "unit": "grams"}
+        ],
+        "stocks": [
+            {"ticker": "AAPL", "shares": 50, "intent": "holding"},
+            {"ticker": "MSFT", "shares": 10, "intent": "trading"}
+        ]
+    },
+    liabilities={
+        "short_term_debts": [
+            {"amount": 1500.0, "currency": "USD"}
+        ]
+    }
+)
+
+print(f"Is Nisab Met: {result['is_nisab_met']}")
+print(f"Net Zakatable Wealth: ${result['net_zakatable_wealth']:,.2f}")
+print(f"Total Zakat Due: ${result['total_zakat_due']:,.2f}")
+```
+
+---
+
+## 4. API Endpoint Reference
 
 ### A. screen stock ticker
 *   **Endpoint:** `GET /api/v1/screen/{ticker}`
@@ -178,7 +242,7 @@ The application is structured as a modular Python package with a FastAPI REST AP
 
 ---
 
-## 4. Current Limitations & Risk Assessment
+## 5. Current Limitations & Risk Assessment
 
 While Zakatable provides a robust, high-precision calculation infrastructure, developers should account for the following limitations:
 1.  **Dependency on Unofficial Web-Scraping:** Yahoo Finance (`yfinance`) may change its public API endpoints or balance sheet styling, causing calculations to return zero or default.
@@ -186,7 +250,7 @@ While Zakatable provides a robust, high-precision calculation infrastructure, de
 
 ---
 
-## 5. Launching the Application
+## 6. Launching the Application
 
 1.  **Install dependencies:**
     ```bash
