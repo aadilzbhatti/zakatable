@@ -637,6 +637,7 @@ function generateComplianceRationale(compliance, standard, denominatorLabel) {
     const biz = compliance.business_screen;
     const screens = compliance.financial_screens;
     const stdName = compliance.compliance_standard;
+    const financialsAvailable = compliance.financials_available !== false;
     
     let parts = [];
     
@@ -644,25 +645,29 @@ function generateComplianceRationale(compliance, standard, denominatorLabel) {
     if (!biz.is_halal) {
         parts.push(`Fails business activity screen: ${biz.reason || 'Primary industry is non-compliant'}.`);
     } else {
-        parts.push(`Primary business activity (${biz.sector} | ${biz.industry}) is Shariah-compliant (tolerable haram revenue is under 5%).`);
+        parts.push(`Primary business activity (${biz.sector} | ${biz.industry}) is Shariah-compliant.`);
     }
     
     // 2. Financial screening
-    let failedRatios = [];
-    if (!screens.debt.passed) {
-        failedRatios.push(`Interest-bearing Debt is ${(screens.debt.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.debt.threshold * 100).toFixed(2)}%)`);
-    }
-    if (!screens.cash_and_investments.passed) {
-        failedRatios.push(`Cash & Interest Securities is ${(screens.cash_and_investments.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.cash_and_investments.threshold * 100).toFixed(2)}%)`);
-    }
-    if (!screens.receivables.passed) {
-        failedRatios.push(`Accounts Receivable is ${(screens.receivables.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.receivables.threshold * 100).toFixed(2)}%)`);
-    }
-    
-    if (failedRatios.length > 0) {
-        parts.push(`Fails quantitative screens because: ${failedRatios.join('; and ')}.`);
+    if (!financialsAvailable) {
+        parts.push(`However, financial compliance is uncertain: Balance sheet data is currently unavailable due to Yahoo Finance API rate limits. Visual ratios are defaulted to 0%. Please use the 30% Market Cap Proxy for Zakat calculations.`);
     } else {
-        parts.push(`Passes all quantitative financial screens: Interest-bearing Debt, Cash & Investments, and Accounts Receivable are within acceptable ${stdName} limits (under ${(screens.debt.threshold * 100).toFixed(0)}%).`);
+        let failedRatios = [];
+        if (!screens.debt.passed) {
+            failedRatios.push(`Interest-bearing Debt is ${(screens.debt.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.debt.threshold * 100).toFixed(2)}%)`);
+        }
+        if (!screens.cash_and_investments.passed) {
+            failedRatios.push(`Cash & Interest Securities is ${(screens.cash_and_investments.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.cash_and_investments.threshold * 100).toFixed(2)}%)`);
+        }
+        if (!screens.receivables.passed) {
+            failedRatios.push(`Accounts Receivable is ${(screens.receivables.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.receivables.threshold * 100).toFixed(2)}%)`);
+        }
+        
+        if (failedRatios.length > 0) {
+            parts.push(`Fails quantitative screens because: ${failedRatios.join('; and ')}.`);
+        } else {
+            parts.push(`Passes all quantitative financial screens: Interest-bearing Debt, Cash & Investments, and Accounts Receivable are within acceptable ${stdName} limits (under ${(screens.debt.threshold * 100).toFixed(0)}%).`);
+        }
     }
     
     return parts.join(" ");

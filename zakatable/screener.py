@@ -278,10 +278,15 @@ def perform_compliance_screening(
     cash_passed = cash_ratio < cash_threshold
     receivables_passed = receivables_ratio < receivables_threshold
     
+    financials_available = stock_data.get("financials_available", True)
     financials_passed = debt_passed and cash_passed and receivables_passed
     
     # 5. Overall Compliance Status
-    is_compliant = business_halal and financials_passed
+    if not financials_available:
+        is_compliant = False
+        business_reason = "Financial compliance is uncertain: Balance sheet data is unavailable due to Yahoo Finance API rate limits."
+    else:
+        is_compliant = business_halal and financials_passed
     
     return {
         "ticker": symbol,
@@ -290,6 +295,7 @@ def perform_compliance_screening(
         "is_compliant": is_compliant,
         "denominator_used": denom_label,
         "denominator_value": float(denominator),
+        "financials_available": financials_available,
         
         "business_screen": {
             "is_halal": business_halal,
