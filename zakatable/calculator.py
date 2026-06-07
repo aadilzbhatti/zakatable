@@ -428,6 +428,9 @@ class ZakatCalculator:
         else:
             is_nisab_met = False
             total_zakat_due = Decimal("0.0")
+            # Floor all breakdown items' zakat_due to 0.0 if wealth is below Nisab
+            for b_item in breakdown:
+                b_item["zakat_due"] = 0.0
             
         # Round values for presentation
         gross_zakatable_assets = gross_zakatable_assets.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
@@ -468,6 +471,9 @@ class ZakatCalculator:
                     shares = Decimal(str(b_item["raw_value"]))
                     price = Decimal(str(b_item["value_base"])) / shares if shares > 0 else Decimal("0.0")
                     
+                    z_lunar = Decimal(str(b_item["zakatable_value"])) * LUNAR_RATE if is_nisab_met else Decimal("0.0")
+                    z_solar = Decimal(str(b_item["zakatable_value"])) * SOLAR_RATE if is_nisab_met else Decimal("0.0")
+                    
                     old_items.append({
                         "ticker": b_item["label"].split()[0],
                         "company_name": b_item["label"].split()[0],
@@ -478,16 +484,19 @@ class ZakatCalculator:
                         "status": "Compliant" if is_compliant else "Non-Compliant",
                         "zakatable_value": float(b_item["zakatable_value"]),
                         "zakatable_asset_per_share": float(Decimal(str(b_item["zakatable_value"])) / shares) if shares > 0 else 0.0,
-                        "zakat_due_lunar": float(Decimal(str(b_item["zakatable_value"])) * LUNAR_RATE),
-                        "zakat_due_solar": float(Decimal(str(b_item["zakatable_value"])) * SOLAR_RATE),
+                        "zakat_due_lunar": float(z_lunar.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
+                        "zakat_due_solar": float(z_solar.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)),
                         "method_used": "30% Market Cap Proxy" if use_proxy else "Balance Sheet Method",
                         "rationale": b_item["rationale"]
                     })
             
             result["total_market_value"] = float(total_market_value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
             result["total_zakatable_value"] = float(total_zakatable_value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
-            result["total_zakat_due_lunar"] = float((total_zakatable_value * LUNAR_RATE).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
-            result["total_zakat_due_solar"] = float((total_zakatable_value * SOLAR_RATE).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+            
+            total_lunar = total_zakatable_value * LUNAR_RATE if is_nisab_met else Decimal("0.0")
+            total_solar = total_zakatable_value * SOLAR_RATE if is_nisab_met else Decimal("0.0")
+            result["total_zakat_due_lunar"] = float(total_lunar.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+            result["total_zakat_due_solar"] = float(total_solar.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
             result["method_used"] = "30% Market Cap Proxy" if use_proxy else "Balance Sheet Method"
             result["items"] = old_items
             

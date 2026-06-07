@@ -126,6 +126,9 @@ def test_nisab_not_met(mock_yfinance):
         "assets": {
             "cash": [
                 { "amount": 500.00, "currency": "USD" }
+            ],
+            "stocks": [
+                { "ticker": "AAPL", "shares": 1.0, "intent": "holding" }
             ]
         }
     }
@@ -138,3 +141,32 @@ def test_nisab_not_met(mock_yfinance):
     
     assert res["is_nisab_met"] is False
     assert res["total_zakat_due"] == 0.0
+    for item in res["breakdown"]:
+        assert item["zakat_due"] == 0.0
+
+def test_nisab_not_met_backward_compatibility(mock_yfinance):
+    calc = ZakatCalculator()
+    
+    # Simple stocks holdings below Nisab (gold Nisab value is $6561.00 USD)
+    holdings = [
+        {"ticker": "AAPL", "shares": 1} # 1 share AAPL = $300.00, below gold Nisab
+    ]
+    
+    res = calc.calculate_portfolio(
+        holdings=holdings,
+        use_proxy=True,
+        settings={
+            "base_currency": "USD",
+            "nisab_standard": "gold",
+            "calendar_type": "gregorian"
+        },
+        force_refresh=True
+    )
+    
+    assert res["is_nisab_met"] is False
+    assert res["total_zakat_due"] == 0.0
+    assert res["total_zakat_due_lunar"] == 0.0
+    assert res["total_zakat_due_solar"] == 0.0
+    for item in res["items"]:
+        assert item["zakat_due_lunar"] == 0.0
+        assert item["zakat_due_solar"] == 0.0
