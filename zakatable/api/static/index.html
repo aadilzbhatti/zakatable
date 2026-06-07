@@ -106,11 +106,10 @@
                     </div>
 
                     <div class="business-desc-wrapper">
-                        <h3>Business Activity Assessment</h3>
-                        <p class="business-summary" id="business-summary-text">Loading...</p>
-                        <div class="rule-box" id="business-activity-rule-box">
-                            <span class="rule-title">Qualitative Verdict:</span>
-                            <span class="rule-desc" id="business-activity-verdict">Passed</span>
+                        <h3>Compliance Verdict Detail</h3>
+                        <p class="verdict-rationale" id="compliance-verdict-rationale">Loading compliance explanation...</p>
+                        <div class="data-source-badge">
+                            <i class="fa-solid fa-database"></i> Source: Audited Financials via Yahoo Finance
                         </div>
                     </div>
                 </div>
@@ -284,6 +283,62 @@
                                 <strong id="val-breakdown-liabilities">-$0.00</strong>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Methodology Card -->
+                <div class="glass-card methodology-card">
+                    <h3><i class="fa-solid fa-circle-info"></i> How are these numbers calculated?</h3>
+                    <p class="card-subtitle">Detailed breakdown of the mathematical formulas and theological sources used.</p>
+                    
+                    <div class="methodology-accordion">
+                        <details class="methodology-item">
+                            <summary><i class="fa-solid fa-magnifying-glass-dollar"></i> Qualitative Business Screening</summary>
+                            <div class="method-details-content">
+                                <p><strong>Rule:</strong> The company's primary business must not generate significant revenue from prohibited (haram) activities (banking, alcohol, gambling, weapons, etc.).</p>
+                                <p><strong>Tolerable Limit:</strong> Minor non-compliant revenue must not exceed <strong>5%</strong> of total revenue (AAOIFI Standard 21, Section 3/4).</p>
+                                <p><strong>Source:</strong> Company classification profiles and audited segment disclosures.</p>
+                            </div>
+                        </details>
+                        
+                        <details class="methodology-item">
+                            <summary><i class="fa-solid fa-calculator"></i> Quantitative Financial Ratios</summary>
+                            <div class="method-details-content">
+                                <p><strong>Threshold:</strong> Debt, Cash, and Receivables must each remain under <strong>33%</strong> (or <strong>33.33%</strong> under MSCI) of the valuation denominator.</p>
+                                <p><strong>Formulas:</strong></p>
+                                <ul>
+                                    <li><code>Debt Ratio = Total Interest-Bearing Debt / Denominator</code></li>
+                                    <li><code>Cash Ratio = (Cash + Short-Term Investments) / Denominator</code></li>
+                                    <li><code>Receivables Ratio = Accounts Receivable / Denominator</code></li>
+                                </ul>
+                                <p><strong>Valuation Denominator Options:</strong> Current Market Cap, 12-Month/36-Month Average Market Cap, or Total Balance Sheet Assets.</p>
+                            </div>
+                        </details>
+                        
+                        <details class="methodology-item">
+                            <summary><i class="fa-solid fa-coins"></i> Zakat: Balance Sheet Method</summary>
+                            <div class="method-details-content">
+                                <p><strong>Application:</strong> Recommended for long-term/passive investors to calculate Zakat only on the net liquid zakatable wealth of the corporation (AAOIFI Standard 35, item 4/2/4).</p>
+                                <p><strong>Formula:</strong></p>
+                                <div class="formula-block">
+                                    <code>Net Zakatable Assets = Cash & Equivalents + Short-Term Investments + Accounts Receivable + Inventory - Current Liabilities</code>
+                                </div>
+                                <p><strong>Per Share:</strong> Divided by the company's total shares outstanding to yield <code>Zakatable Value Per Share</code>.</p>
+                                <p><strong>Rates:</strong> Lunar Calendar (2.50%) or Solar Calendar (2.577% adjusted for the extra 11 days of asset accumulation).</p>
+                            </div>
+                        </details>
+
+                        <details class="methodology-item">
+                            <summary><i class="fa-solid fa-chart-line"></i> Zakat: 30% Market Cap Proxy</summary>
+                            <div class="method-details-content">
+                                <p><strong>Application:</strong> Backfall heuristic recommended by NZF and contemporary scholars when full balance sheet disclosures are unavailable or for fast indexing.</p>
+                                <p><strong>Formula:</strong></p>
+                                <div class="formula-block">
+                                    <code>Zakatable Asset Per Share = 30% × Share Price</code>
+                                </div>
+                                <p>Zakat due per share is then calculated by multiplying this proxy value by the Lunar (2.50%) or Solar (2.577%) rate.</p>
+                            </div>
+                        </details>
                     </div>
                 </div>
 

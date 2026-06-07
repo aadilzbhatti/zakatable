@@ -25,8 +25,7 @@ const complianceIndicator = document.getElementById("compliance-indicator");
 const complianceIcon = document.getElementById("compliance-icon");
 const complianceStatusText = document.getElementById("compliance-status-text");
 const currentSharePrice = document.getElementById("current-share-price");
-const businessSummaryText = document.getElementById("business-summary-text");
-const businessActivityVerdict = document.getElementById("business-activity-verdict");
+const complianceVerdictRationale = document.getElementById("compliance-verdict-rationale");
 
 // Ratios DOM
 const denominatorLabelDesc = document.getElementById("denominator-label-desc");
@@ -269,19 +268,9 @@ function renderAuditDashboard(data) {
     companyTitle.textContent = data.company_name;
     sectorIndustry.textContent = `${data.sector} | ${data.industry}`;
     currentSharePrice.textContent = formatCurrency(data.price);
-    businessSummaryText.textContent = data.compliance.business_screen.sector === "N/A" 
-        ? "No corporate summary available." 
-        : data.compliance.business_screen.reason;
-        
-    // Business Screen verdict box
-    const bizScreen = data.compliance.business_screen;
-    businessActivityVerdict.textContent = bizScreen.is_halal ? "Compliant" : "Non-Compliant";
-    if (bizScreen.is_halal) {
-        businessActivityVerdict.className = "rule-desc text-gradient";
-    } else {
-        businessActivityVerdict.className = "rule-desc text-danger";
-        businessActivityVerdict.style.color = "var(--status-haram)";
-    }
+    // Update compliance verdict rationale
+    const denomUsedLabel = data.compliance.denominator_used;
+    complianceVerdictRationale.textContent = generateComplianceRationale(data.compliance, data.compliance.compliance_standard, denomUsedLabel);
 
     // Overall Compliance Badge
     if (data.compliance.is_compliant) {
@@ -637,4 +626,40 @@ function formatCurrencyLarge(val) {
         return `$${(val / 1e6).toFixed(2)}M`;
     }
     return formatCurrency(val, 2);
+}
+
+// Generates dynamic plain-text explanation of stock compliance
+function generateComplianceRationale(compliance, standard, denominatorLabel) {
+    const biz = compliance.business_screen;
+    const screens = compliance.financial_screens;
+    const stdName = compliance.compliance_standard;
+    
+    let parts = [];
+    
+    // 1. Business screening
+    if (!biz.is_halal) {
+        parts.push(`Fails business activity screen: ${biz.reason || 'Primary industry is non-compliant'}.`);
+    } else {
+        parts.push(`Primary business activity (${biz.sector} | ${biz.industry}) is Shariah-compliant (tolerable haram revenue is under 5%).`);
+    }
+    
+    // 2. Financial screening
+    let failedRatios = [];
+    if (!screens.debt.passed) {
+        failedRatios.push(`Interest-bearing Debt is ${(screens.debt.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.debt.threshold * 100).toFixed(2)}%)`);
+    }
+    if (!screens.cash_and_investments.passed) {
+        failedRatios.push(`Cash & Interest Securities is ${(screens.cash_and_investments.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.cash_and_investments.threshold * 100).toFixed(2)}%)`);
+    }
+    if (!screens.receivables.passed) {
+        failedRatios.push(`Accounts Receivable is ${(screens.receivables.ratio * 100).toFixed(2)}% of ${denominatorLabel} (exceeds the max allowed threshold of ${(screens.receivables.threshold * 100).toFixed(2)}%)`);
+    }
+    
+    if (failedRatios.length > 0) {
+        parts.push(`Fails quantitative screens because: ${failedRatios.join('; and ')}.`);
+    } else {
+        parts.push(`Passes all quantitative financial screens: Interest-bearing Debt, Cash & Investments, and Accounts Receivable are within acceptable ${stdName} limits (under ${(screens.debt.threshold * 100).toFixed(0)}%).`);
+    }
+    
+    return parts.join(" ");
 }
