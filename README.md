@@ -16,6 +16,7 @@ According to **AAOIFI Shari'ah Standard No. 21 (Financial Papers and Shares)** (
     *   **Tolerable Impurity Limit:** Any non-compliant (haram) revenue generated from secondary or accidental activities must not exceed **5%** of the company's total revenue:
         $$\frac{\text{Non-Compliant Revenue}}{\text{Total Revenue}} < 5\%$$
         *Note: Any earnings derived from non-compliant sources must be "purified" (donated to charity) and cannot be kept or reinvested. See [AAOIFI Standard 21, Section 3/4](https://aaoifi.com/ss-21-financial-paper-shares-and-bonds/?lang=en).*
+    *   > **Plain-English:** The company must not make its main income from forbidden things (like alcohol, gambling, or interest-based banking). If a tiny part of its income (less than 5%) comes from forbidden secondary sources, it is allowed to invest, but you must donate that 5% portion of your earnings to charity (called purification).
 2.  **Financial Ratios Screen (Quantitative):**
     Because modern public companies operate within conventional interest-based economies, AAOIFI allows investment in companies with minor debt or cash balances, subject to strict limits (historically set at a maximum of **33%**):
     *   **Debt-to-Asset/Market Cap Screen:** The company's total interest-bearing debt must not exceed 33% of its valuation:
@@ -25,6 +26,7 @@ According to **AAOIFI Shari'ah Standard No. 21 (Financial Papers and Shares)** (
     *   **Receivables-to-Asset/Market Cap Screen:** Accounts receivable must not exceed 33% of its valuation:
         $$\frac{\text{Accounts Receivable}}{\text{Denominator}} < 33\%$$
         *(Note: Some standards, such as the Dow Jones Islamic Market index, permit receivables up to 33%, whereas others like MSCI permit up to 33.33% and utilize total assets rather than market capitalization as the denominator. See the [MSCI Index Methodology Portal](https://www.msci.com/index-methodology) (historical reference: [MSCI Islamic Index Methodology Nov 2019](https://www.msci.com/eqb/methodology/meth_docs/MSCI_Islamic_Index_Methodology_Nov2019.pdf)) and the [S&P Dow Jones Shariah Indices Methodology](https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-shariah-indices.pdf)).*
+    *   > **Plain-English:** Public companies often use interest-bearing debt or hold cash in interest-earning bank accounts. Shariah rules allow you to invest if these are kept under a limit: the company's total interest-bearing debt, its cash/savings, and its accounts receivable must each be less than 33% of its total valuation.
 
 ### B. Asset-Class Specific Routing Rules (AAOIFI Standard No. 35)
 Calculating Zakat is governed by **AAOIFI Shari'ah Standard No. 35 (Zakah)**, which can be searched on the [AAOIFI E-Standards Portal](https://aaoifi.com/e-standards/). The calculations apply rules differently across asset classes to ensure compliance:
@@ -33,6 +35,7 @@ Calculating Zakat is governed by **AAOIFI Shari'ah Standard No. 35 (Zakah)**, wh
 *   **Fiqh Rule:** Cash is a liquid medium of exchange and is 100% subject to Zakat.
 *   **References:** [AAOIFI Shari'ah Standard No. 35, Section 2](https://aaoifi.com/e-standards/) (Zakat on Cash & Receivables) and [NZF Cash Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-cash/).
 *   **Formula:** $\text{Zakatable Value} = \text{Cash Amount} \times \text{FX Rate to Base Currency}$.
+*   > **Plain-English:** Any cash savings you have in bank accounts, cash under the mattress, or foreign currency are fully subject to Zakat.
 
 #### 2. Precious Metals (Gold & Silver)
 *   **Fiqh Rule:** Zakat is due on the pure weight of gold or silver owned.
@@ -40,27 +43,37 @@ Calculating Zakat is governed by **AAOIFI Shari'ah Standard No. 35 (Zakah)**, wh
 *   **Formula:**
     $$\text{Pure Weight} = \text{Raw Weight} \times \frac{\text{Karat Purity}}{24}$$
     $$\text{Value} = \text{Pure Weight (grams)} \times \text{Live USD Price per gram} \times \text{FX Rate}$$
+*   > **Plain-English:** Zakat is calculated on the actual weight of gold and silver jewelry, coins, or bars you own (adjusting for purity like 22k vs 24k gold) based on their current live market value.
 
 #### 3. Stocks (Intent-Based Routing)
 Under the **AAOIFI Shari'ah Standard No. 35 (Zakah)**, Zakat on stocks differs entirely based on the investor's intention:
 *   **Active Trading (Capital Gains):** If the shares are held with the intent to resell (trading inventory), they are classified as **trade goods (*Urudh al-Tijarah*)** and taxed at 100% of the current market value (AAOIFI Standard No. 35, Section 4).
+    *   > **Plain-English:** If you buy and sell stocks frequently for quick profits (like day trading or swing trading), you must pay Zakat on the full current market value of your shares.
 *   **Passive Holding (Dividend Income):** If the shares are held long-term for dividend yield, they are taxed only on the company's **Net Zakatable Assets** (Cash + Receivables + Inventory - Current Liabilities) according to AAOIFI Standard No. 35, item 4/2/4 (Pro-rata share of Net Zakatable Assets) and the [Assembly of Muslim Jurists of America (AMJA) Declaration on Stocks Zakat](https://www.amjaonline.org/declaration-articles/zakat-on-shares-and-investments/). If the balance sheet shows a liquid asset deficit, the Zakat due is floored to zero.
+    *   > **Plain-English:** If you hold stocks long-term (e.g., retirement funds, dividend investing), you only pay Zakat on your share of the company's actual liquid assets (cash, receivables, and inventory minus current liabilities) instead of the full stock price. If the company is in a deficit, your Zakat for this stock is $0.00.
 *   **The 30% Proxy Heuristic:** If balance sheet data fails to fetch or is unavailable, we apply the contemporary 30% Market Cap Proxy fallback established by the [UK National Zakat Foundation (NZF) Guide on Shares](https://nzf.org.uk/knowledge/zakat-on-shares/) and [Islamic Finance Guru (IFG) Definitive Guide to Zakat on Investments](https://www.islamicfinanceguru.com/articles/the-definitive-ifg-guide-to-zakat-on-investments) where 30% of the stock price represents the zakatable asset base.
+    *   > **Plain-English:** If a company's detailed balance sheet is unavailable (such as due to Yahoo Finance rate limits), we assume that 30% of the stock's market value represents its liquid assets and calculate Zakat on that amount.
 
 #### 4. Real Estate
 *   **Fiqh Rule:** The calculation varies strictly based on property usage:
     *   `primary` (Residence): Exempt from Zakat. Hadith: [Sahih al-Bukhari 1464](https://sunnah.com/bukhari:1464) and [Sahih Muslim 982](https://sunnah.com/muslim:982a) (No Zakat on personal-use houses or belongings). See also [NZF Property Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-property/).
+        *   > **Plain-English:** The home you live in is completely exempt. You do not pay Zakat on its value.
     *   `rental` (Investment): The asset value of the rental property is exempt from Zakat. Only accumulated net cash savings from rental income are subject to Zakat. See [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/) and [NZF Property Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-property/).
+        *   > **Plain-English:** You do not pay Zakat on the value of a property you rent out. You only pay Zakat on any rental income you have saved in cash on your Zakat date.
     *   `flip` (Trading property): Taxed at 100% of current market value as trade goods (*Urudh al-Tijarah*). Reference: [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/).
+        *   > **Plain-English:** If you buy properties to fix and flip for profit, they are considered trade goods, and you must pay Zakat on the full market value of the property.
 *   **Formula:** Handled according to intent parameters in Zakat calculation engine.
 
 #### 5. Business Inventory
 *   **Fiqh Rule:** Business inventory held for sale is valued at its current wholesale market price on the Zakat anniversary date and is 100% subject to Zakat. Reference: [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/) and [NZF Business Assets Zakat Guide](https://nzf.org.uk/knowledge/business-zakat-guide/).
+*   > **Plain-English:** If you own a business, you pay Zakat on the current wholesale value of any goods or stock you have ready to sell.
 
 #### 6. Receivables (Debts Owed to You)
 *   **Fiqh Rule:** Receivables are subject to Zakat based on their collectibility:
     *   `good` (Performing): Debts expected to be paid back (loans to trusted people, salaries/monies due). 100% subject to Zakat each year.
+        *   > **Plain-English:** If someone owes you money and you are confident they will pay you back (like a personal loan to a trusted friend or unpaid wages), you must include this amount in your Zakat calculations.
     *   `bad` (Non-performing/doubtful): Debts where repayment is unlikely or delayed. Exempt from Zakat until they are actually collected, at which point Zakat is paid for one year.
+        *   > **Plain-English:** If you are doubtful that a debt will ever be paid back, you do not pay Zakat on it annually. You only pay Zakat once on the amount when you finally receive it.
 *   **Reference:** [AAOIFI Shari'ah Standard No. 35, Section 2/2](https://aaoifi.com/e-standards/) (Zakat on Cash & Receivables) and [NZF Debt Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-debt/).
 *   **Formula:** 
     *   Good Receivables: $\text{Zakatable Value} = \text{Receivable Balance} \times \text{FX Rate}$
@@ -69,19 +82,23 @@ Under the **AAOIFI Shari'ah Standard No. 35 (Zakah)**, Zakat on stocks differs e
 #### 7. Retirement Accounts (IRA / 401k / Pension)
 *   **Fiqh Rule:** Contemporary scholars and methodologies (such as AMJA and NZF) rule that Zakat is due on the accessible funds within retirement accounts, minus the taxes and early withdrawal penalties that would be paid if withdrawn today.
     *   If the account is fully locked/inaccessible (e.g. unvested employer matched pension), it is exempt from Zakat until access is granted.
-    *   If the account is accessible (e.g., Traditional/Roth IRA, 401k with early withdrawal options), Zakat is calculated on the net wealth:
+    *   If the account is accessible (e.g., Traditional/Roth IRA, 401k with early withdrawal options), Zakat is calculated on the net wealth.
 *   **Reference:** Extends the ownership (*Milk*) and liability deduction concepts in [AAOIFI Shari'ah Standard No. 35, Section 2 & 7](https://aaoifi.com/e-standards/). Detailed guidance in [AMJA Declaration on Stocks/Retirement Zakat](https://www.amjaonline.org/declaration-articles/zakat-on-shares-and-investments/).
 *   **Formula:**
     $$\text{Net Zakatable Value} = \text{Account Balance} \times (1 - \text{Estimated Tax Rate} - \text{Estimated Penalty Rate}) \times \text{FX Rate}$$
+*   > **Plain-English:** For retirement funds you can access (even with a penalty), you calculate Zakat on the net balance after deducting the taxes and early withdrawal penalties you would owe if you withdrew the money today. Locked or inaccessible funds are completely exempt.
 
 ### C. Deductible Liabilities & Nisab Checking
 *   **Liabilities Deduction:** Immediate, short-term liabilities (outstanding debts payable within the current month or 30 days) are subtracted from the gross wealth base. Long-term debts (like the remaining principal on a mortgage) are excluded. Reference: [AAOIFI Standard No. 35, Section 7](https://aaoifi.com/e-standards/) (Deductible Debts) and [NZF Debt Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-debt/).
+    *   > **Plain-English:** You can deduct short-term debts that you need to pay off immediately (like credit card bills, utility bills, or the current month's rent/mortgage installment) from your Zakat base. You cannot deduct long-term debts like the remaining principal on a mortgage or car loan.
 *   **Nisab Check:** Zakat is only due if the user's `Net Zakatable Wealth` exceeds the Nisab threshold in their base currency:
     *   **Gold Nisab Standard:** 87.48 grams of pure gold. Hadith: [Sunan Abu Dawud 1572](https://sunnah.com/abudawud:1572). Reference: [AAOIFI Shari'ah Standard No. 35, Section 3](https://aaoifi.com/e-standards/).
-    *   **Silver Nisab Standard:** 612.36 grams of pure silver. Hadith: [Sahih al-Bukhari 1447](https://sunnah.com/bukhari:1447) (No Zakat is due on less than 5 *awquq* of silver). Reference: [AAOIFI Shari'ah Standard No. 35, Section 3](https://aaoifi.com/e-standards/).
+    *   **Silver Nisab Standard:** 612.36 grams of pure silver. Hadith: [Sahih al-Bukhari 1447](https://sunnah.com/bukhari:1447). Reference: [AAOIFI Shari'ah Standard No. 35, Section 3](https://aaoifi.com/e-standards/).
+    *   > **Plain-English:** You only pay Zakat if your total net wealth is above a minimum threshold (the Nisab). The Nisab is either the value of 87.48 grams of gold or 612.36 grams of silver.
 *   **Calendar adjustments:**
     *   **Lunar calendar Zakat rate:** **2.50%**. Hadith: [Sunan Ibn Majah 1790](https://sunnah.com/ibnmajah:1790). Reference: [AAOIFI Standard No. 35, Section 5](https://aaoifi.com/e-standards/).
     *   **Solar calendar Zakat rate:** Adjusted to **2.577%** ($2.5\% \times \frac{365.25}{354}$) to account for the extra 11 days of asset accumulation under Gregorian years. Reference: [AAOIFI Standard No. 35, Section 5/2/2](https://aaoifi.com/e-standards/).
+    *   > **Plain-English:** Zakat is traditionally 2.50% if calculated using the Islamic lunar calendar (354 days). If you calculate Zakat using the standard solar/Gregorian calendar (365 days), the rate is slightly adjusted to 2.577% to account for the extra 11 days of wealth accumulation.
 
 ---
 
