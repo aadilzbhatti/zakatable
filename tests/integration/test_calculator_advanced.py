@@ -170,3 +170,62 @@ def test_nisab_not_met_backward_compatibility(mock_yfinance):
     for item in res["items"]:
         assert item["zakat_due_lunar"] == 0.0
         assert item["zakat_due_solar"] == 0.0
+
+def test_receivables_and_retirement_accounts(mock_yfinance):
+    calc = ZakatCalculator()
+    
+    payload = {
+        "settings": {
+            "base_currency": "USD",
+            "nisab_standard": "silver",
+            "calendar_type": "gregorian"
+        },
+        "assets": {
+            "cash": [
+                { "amount": 10000.00, "currency": "USD" }
+            ],
+            "receivables": [
+                { "amount": 3000.00, "currency": "USD", "type": "good" },
+                { "amount": 5000.00, "currency": "USD", "type": "bad" }
+            ],
+            "retirement_accounts": [
+                { "balance": 50000.00, "currency": "USD", "is_accessible": True, "tax_rate": 0.20, "penalty_rate": 0.10 },
+                { "balance": 100000.00, "currency": "USD", "is_accessible": False }
+            ]
+        }
+    }
+    
+    res = calc.calculate_portfolio(
+        settings=payload["settings"],
+        assets=payload["assets"],
+        force_refresh=True
+    )
+    
+    # Assertions:
+    # Cash: 10000.00
+    # Good receivable: 3000.00
+    # Bad receivable: 0.00
+    # Accessible retirement: 50000.00 * (1 - 0.20 - 0.10) = 35000.00
+    # Locked retirement: 0.00
+    # Total Gross assets = 10000 + 3000 + 35000 = $48,000.00
+    assert res["gross_zakatable_assets"] == 48000.00
+    assert res["allowed_liabilities"] == 0.0
+    assert res["net_zakatable_wealth"] == 48000.00
+    assert res["is_nisab_met"] is True
+    
+    # 48000.00 * 0.02577 = 1236.96
+    assert res["total_zakat_due"] == 1236.96
+    
+    # Check breakdown items
+    rec_good = next(item for item in res["breakdown"] if "Good" in item["label"])
+    assert rec_good["zakatable_value"] == 3000.00
+    
+    rec_bad = next(item for item in res["breakdown"] if "Bad" in item["label"])
+    assert rec_bad["zakatable_value"] == 0.0
+    
+    ret_acc = next(item for item in res["breakdown"] if item["asset_class"] == "retirement_accounts" and item["zakatable_value"] > 0)
+    assert ret_acc["zakatable_value"] == 35000.00
+    
+    ret_locked = next(item for item in res["breakdown"] if item["asset_class"] == "retirement_accounts" and item["zakatable_value"] == 0)
+    assert ret_locked["zakatable_value"] == 0.0
+

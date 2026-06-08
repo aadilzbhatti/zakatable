@@ -11,6 +11,7 @@ GRAMS_PER_TROY_ONCE = Decimal("31.1034768")
 # Hadith: Sunan Abu Dawud 1572 - https://sunnah.com/abudawud:1572
 # Silver Nisab = 612.36 grams of pure silver (equivalent to 200 dirhams / 5 awquq)
 # Hadith: Sahih al-Bukhari 1447 - https://sunnah.com/bukhari:1447
+# Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 3 - Nisab)
 # Detailed guide: NZF Gold & Silver Guide: https://nzf.org.uk/knowledge/zakat-on-gold-and-silver/
 NISAB_WEIGHTS = {
     "gold": Decimal("87.48"),

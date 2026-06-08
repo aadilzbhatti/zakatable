@@ -27,11 +27,11 @@ According to **AAOIFI Shari'ah Standard No. 21 (Financial Papers and Shares)** (
         *(Note: Some standards, such as the Dow Jones Islamic Market index, permit receivables up to 33%, whereas others like MSCI permit up to 33.33% and utilize total assets rather than market capitalization as the denominator. See the [MSCI Index Methodology Portal](https://www.msci.com/index-methodology) (historical reference: [MSCI Islamic Index Methodology Nov 2019](https://www.msci.com/eqb/methodology/meth_docs/MSCI_Islamic_Index_Methodology_Nov2019.pdf)) and the [S&P Dow Jones Shariah Indices Methodology](https://www.spglobal.com/spdji/en/documents/methodologies/methodology-sp-shariah-indices.pdf)).*
 
 ### B. Asset-Class Specific Routing Rules (AAOIFI Standard No. 35)
-Calculating Zakat is governed by **AAOIFI Shari'ah Standard No. 35 (Zakah)**, which can be searched on the [AAOIFI E-Standards Portal](https://aaoifi.com/e-standards/?lang=en). The calculations apply rules differently across asset classes to ensure compliance:
+Calculating Zakat is governed by **AAOIFI Shari'ah Standard No. 35 (Zakah)**, which can be searched on the [AAOIFI E-Standards Portal](https://aaoifi.com/e-standards/). The calculations apply rules differently across asset classes to ensure compliance:
 
 #### 1. Cash & Liquidity
 *   **Fiqh Rule:** Cash is a liquid medium of exchange and is 100% subject to Zakat.
-*   **References:** [AAOIFI Shari'ah Standard No. 35, Section 2](https://aaoifi.com/e-standards/?lang=en) (Zakat on Cash & Receivables) and [NZF Cash Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-cash/).
+*   **References:** [AAOIFI Shari'ah Standard No. 35, Section 2](https://aaoifi.com/e-standards/) (Zakat on Cash & Receivables) and [NZF Cash Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-cash/).
 *   **Formula:** $\text{Zakatable Value} = \text{Cash Amount} \times \text{FX Rate to Base Currency}$.
 
 #### 2. Precious Metals (Gold & Silver)
@@ -50,21 +50,38 @@ Under the **AAOIFI Shari'ah Standard No. 35 (Zakah)**, Zakat on stocks differs e
 #### 4. Real Estate
 *   **Fiqh Rule:** The calculation varies strictly based on property usage:
     *   `primary` (Residence): Exempt from Zakat. Hadith: [Sahih al-Bukhari 1464](https://sunnah.com/bukhari:1464) and [Sahih Muslim 982](https://sunnah.com/muslim:982a) (No Zakat on personal-use houses or belongings). See also [NZF Property Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-property/).
-    *   `rental` (Investment): The asset value of the rental property is exempt from Zakat. Only accumulated net cash savings from rental income are subject to Zakat. See [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/?lang=en) and [NZF Property Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-property/).
-    *   `flip` (Trading property): Taxed at 100% of current market value as trade goods (*Urudh al-Tijarah*). Reference: [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/?lang=en).
+    *   `rental` (Investment): The asset value of the rental property is exempt from Zakat. Only accumulated net cash savings from rental income are subject to Zakat. See [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/) and [NZF Property Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-property/).
+    *   `flip` (Trading property): Taxed at 100% of current market value as trade goods (*Urudh al-Tijarah*). Reference: [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/).
 *   **Formula:** Handled according to intent parameters in Zakat calculation engine.
 
 #### 5. Business Inventory
-*   **Fiqh Rule:** Business inventory held for sale is valued at its current wholesale market price on the Zakat anniversary date and is 100% subject to Zakat. Reference: [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/?lang=en) and [NZF Business Assets Zakat Guide](https://nzf.org.uk/knowledge/business-zakat-guide/).
+*   **Fiqh Rule:** Business inventory held for sale is valued at its current wholesale market price on the Zakat anniversary date and is 100% subject to Zakat. Reference: [AAOIFI Standard No. 35, Section 4](https://aaoifi.com/e-standards/) and [NZF Business Assets Zakat Guide](https://nzf.org.uk/knowledge/business-zakat-guide/).
+
+#### 6. Receivables (Debts Owed to You)
+*   **Fiqh Rule:** Receivables are subject to Zakat based on their collectibility:
+    *   `good` (Performing): Debts expected to be paid back (loans to trusted people, salaries/monies due). 100% subject to Zakat each year.
+    *   `bad` (Non-performing/doubtful): Debts where repayment is unlikely or delayed. Exempt from Zakat until they are actually collected, at which point Zakat is paid for one year.
+*   **Reference:** [AAOIFI Shari'ah Standard No. 35, Section 2/2](https://aaoifi.com/e-standards/) (Zakat on Cash & Receivables) and [NZF Debt Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-debt/).
+*   **Formula:** 
+    *   Good Receivables: $\text{Zakatable Value} = \text{Receivable Balance} \times \text{FX Rate}$
+    *   Bad Receivables: $\text{Zakatable Value} = 0.0$
+
+#### 7. Retirement Accounts (IRA / 401k / Pension)
+*   **Fiqh Rule:** Contemporary scholars and methodologies (such as AMJA and NZF) rule that Zakat is due on the accessible funds within retirement accounts, minus the taxes and early withdrawal penalties that would be paid if withdrawn today.
+    *   If the account is fully locked/inaccessible (e.g. unvested employer matched pension), it is exempt from Zakat until access is granted.
+    *   If the account is accessible (e.g., Traditional/Roth IRA, 401k with early withdrawal options), Zakat is calculated on the net wealth:
+*   **Reference:** Extends the ownership (*Milk*) and liability deduction concepts in [AAOIFI Shari'ah Standard No. 35, Section 2 & 7](https://aaoifi.com/e-standards/). Detailed guidance in [AMJA Declaration on Stocks/Retirement Zakat](https://www.amjaonline.org/declaration-articles/zakat-on-shares-and-investments/).
+*   **Formula:**
+    $$\text{Net Zakatable Value} = \text{Account Balance} \times (1 - \text{Estimated Tax Rate} - \text{Estimated Penalty Rate}) \times \text{FX Rate}$$
 
 ### C. Deductible Liabilities & Nisab Checking
-*   **Liabilities Deduction:** Immediate, short-term liabilities (outstanding debts payable within the current month or 30 days) are subtracted from the gross wealth base. Long-term debts (like the remaining principal on a mortgage) are excluded. Reference: [AAOIFI Standard No. 35, Section 7](https://aaoifi.com/e-standards/?lang=en) (Deductible Debts) and [NZF Debt Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-debt/).
+*   **Liabilities Deduction:** Immediate, short-term liabilities (outstanding debts payable within the current month or 30 days) are subtracted from the gross wealth base. Long-term debts (like the remaining principal on a mortgage) are excluded. Reference: [AAOIFI Standard No. 35, Section 7](https://aaoifi.com/e-standards/) (Deductible Debts) and [NZF Debt Zakat Guide](https://nzf.org.uk/knowledge/zakat-on-debt/).
 *   **Nisab Check:** Zakat is only due if the user's `Net Zakatable Wealth` exceeds the Nisab threshold in their base currency:
-    *   **Gold Standard:** 87.48 grams of pure gold. Hadith: [Sunan Abu Dawud 1572](https://sunnah.com/abudawud:1572).
-    *   **Silver Standard:** 612.36 grams of pure silver. Hadith: [Sahih al-Bukhari 1447](https://sunnah.com/bukhari:1447) (No Zakat is due on less than 5 *awquq* of silver).
+    *   **Gold Nisab Standard:** 87.48 grams of pure gold. Hadith: [Sunan Abu Dawud 1572](https://sunnah.com/abudawud:1572). Reference: [AAOIFI Shari'ah Standard No. 35, Section 3](https://aaoifi.com/e-standards/).
+    *   **Silver Nisab Standard:** 612.36 grams of pure silver. Hadith: [Sahih al-Bukhari 1447](https://sunnah.com/bukhari:1447) (No Zakat is due on less than 5 *awquq* of silver). Reference: [AAOIFI Shari'ah Standard No. 35, Section 3](https://aaoifi.com/e-standards/).
 *   **Calendar adjustments:**
-    *   **Lunar calendar Zakat rate:** **2.50%**. Hadith: [Sunan Ibn Majah 1790](https://sunnah.com/ibnmajah:1790).
-    *   **Solar calendar Zakat rate:** Adjusted to **2.577%** ($2.5\% \times \frac{365.25}{354}$) to account for the extra 11 days of asset accumulation under Gregorian years. Reference: [AAOIFI Standard No. 35, Section 5/2/2](https://aaoifi.com/e-standards/?lang=en).
+    *   **Lunar calendar Zakat rate:** **2.50%**. Hadith: [Sunan Ibn Majah 1790](https://sunnah.com/ibnmajah:1790). Reference: [AAOIFI Standard No. 35, Section 5](https://aaoifi.com/e-standards/).
+    *   **Solar calendar Zakat rate:** Adjusted to **2.577%** ($2.5\% \times \frac{365.25}{354}$) to account for the extra 11 days of asset accumulation under Gregorian years. Reference: [AAOIFI Standard No. 35, Section 5/2/2](https://aaoifi.com/e-standards/).
 
 ---
 

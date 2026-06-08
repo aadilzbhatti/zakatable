@@ -56,6 +56,7 @@ class ZakatCalculator:
         # Determine Zakat rate
         # Reference: AAOIFI Shari'ah Standard No. 35 (Zakah) Section 5/2/2 (Solar year adjustment)
         # See E-Standards: https://aaoifi.com/e-standards/?lang=en
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 5/2/2)
         # Hadith: Sunan Ibn Majah 1790 - establishing the lunar Zakat rate of 2.5% (one-fortieth):
         # https://sunnah.com/ibnmajah:1790
         # Solar adjustment: 2.5% * (365.25 / 354) = 2.577% (reflecting extra 11 days of asset accumulation)
@@ -80,6 +81,7 @@ class ZakatCalculator:
         # --- 1. PROCESS CASH ASSETS ---
         # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah), Section 2 (Zakat on Cash & Receivables)
         # See E-Standards: https://aaoifi.com/e-standards/?lang=en
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 2)
         # Cash is a liquid medium of exchange and is 100% subject to Zakat.
         # See also NZF Cash Guide: https://nzf.org.uk/knowledge/zakat-on-cash/
         for cash_item in assets.get("cash", []):
@@ -111,6 +113,8 @@ class ZakatCalculator:
         # Link: https://quran.com/9/34
         # Hadith Reference: Sunan Abu Dawud 1572 - establishing the gold/silver Zakat thresholds and Nisab:
         # Link: https://sunnah.com/abudawud:1572
+        # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah) Section 2/1 (Zakat on Gold & Silver)
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 2/1)
         # Detailed guide: NZF Gold & Silver Guide: https://nzf.org.uk/knowledge/zakat-on-gold-and-silver/
         for metal_item in assets.get("precious_metals", []):
             metal = metal_item.get("metal", "gold").strip().lower()
@@ -166,6 +170,7 @@ class ZakatCalculator:
         # --- 3. PROCESS BUSINESS INVENTORY ---
         # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah), Section 4 (Zakat on Trade Goods / Urudh al-Tijarah)
         # See E-Standards Portal: https://aaoifi.com/e-standards/?lang=en
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 4)
         # Inventory held for sale is valued at its wholesale market price on the Zakat anniversary.
         # See also NZF Business Assets Guide: https://nzf.org.uk/knowledge/business-zakat-guide/
         for inv_item in assets.get("business_inventory", []):
@@ -197,6 +202,7 @@ class ZakatCalculator:
         # Link: https://sunnah.com/bukhari:1464
         # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah) Section 4 (Zakat on Real Estate)
         # See E-Standards: https://aaoifi.com/e-standards/?lang=en
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 4)
         # Zakat is due on the asset value if held with intent to resell/flip (treated as trade goods),
         # but the property asset itself is exempt if held as a rental; only accumulated rental cash is subject to Zakat.
         # See also NZF Property Guide: https://nzf.org.uk/knowledge/zakat-on-property/
@@ -248,6 +254,7 @@ class ZakatCalculator:
         # --- 5. PROCESS STOCKS ---
         # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah) (Zakat on Corporate Shares & Securities)
         # See E-Standards: https://aaoifi.com/e-standards/?lang=en
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 4/2)
         # Zakat on equities varies entirely based on investor intent:
         # 1. Active Trading: Treated as trade goods (Urudh al-Tijarah) - Zakat is due on 100% of the current market value.
         #    See AAOIFI Standard No. 35, Section 4 (Zakah on Trade Goods).
@@ -380,9 +387,100 @@ class ZakatCalculator:
                     "rationale": f"Skipped: Failed to fetch stock parameters ({str(e)})"
                 })
                 
+        # --- 5a. PROCESS RECEIVABLES ---
+        # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah), Section 2/2 (Zakat on Receivables)
+        # Standard Link: https://aaoifi.com/e-standards/
+        # Receivables (debts owed to the user) are subject to Zakat:
+        # - Good / Performing Receivables: Expected to be paid back. 100% subject to Zakat each year.
+        # - Bad / Doubtful / Non-Performing Receivables: Unlikely to be paid. Exempt until received, at which point Zakat is paid for one year.
+        for rec_item in assets.get("receivables", []):
+            amount = Decimal(str(rec_item.get("amount", 0.0)))
+            curr = rec_item.get("currency", base_currency).strip().upper()
+            rec_type = rec_item.get("type", "good").strip().lower()
+            
+            rate = get_exchange_rate(curr, base_currency, force_refresh)
+            val_base = amount * rate
+            
+            # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35, Section 2/2)
+            if rec_type == "good":
+                zakatable_val = val_base
+                zakat_due = val_base * zakat_rate
+                gross_zakatable_assets += val_base
+                rationale = (
+                    f"Performing (Good) Receivable: Under AAOIFI Standard No. 35, Sec. 2/2, performing debts owed to you "
+                    f"are 100% subject to Zakat. Converted amount: ${val_base:,.2f}, yielding ${zakat_due:,.2f} Zakat."
+                )
+            else:
+                zakatable_val = Decimal("0.0")
+                zakat_due = Decimal("0.0")
+                rationale = (
+                    f"Non-Performing (Bad/Doubtful) Receivable: Under AAOIFI Standard No. 35, Sec. 2/2, doubtful debts are exempt "
+                    f"from annual Zakat until collected. Converted amount: ${val_base:,.2f} is excluded."
+                )
+                
+            breakdown.append({
+                "asset_class": "receivables",
+                "label": f"Receivable ({rec_type.capitalize()} - {curr})",
+                "raw_value": float(amount),
+                "value_base": float(val_base),
+                "zakatable_value": float(zakatable_val),
+                "zakat_due": float(zakat_due),
+                "rationale": rationale
+            })
+            
+        # --- 5b. PROCESS RETIREMENT ACCOUNTS ---
+        # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah), Section 2 & Section 7
+        # Standard Link: https://aaoifi.com/e-standards/
+        # Retirement accounts (Traditional/Roth IRA, 401(k), pension) are subject to Zakat on their accessible funds:
+        # - Locked / Inaccessible accounts (e.g. unvested/locked pensions) are exempt until accessible.
+        # - Accessible accounts are subject to Zakat on the balance minus tax and early withdrawal penalty deductions.
+        # contemporary consensus (AMJA/NZF): Net Zakatable Value = Balance * (1 - Tax Rate - Penalty Rate)
+        for ret_item in assets.get("retirement_accounts", []):
+            balance = Decimal(str(ret_item.get("balance", 0.0)))
+            curr = ret_item.get("currency", base_currency).strip().upper()
+            is_accessible = ret_item.get("is_accessible", True)
+            tax_rate_input = Decimal(str(ret_item.get("tax_rate", 0.0)))
+            penalty_rate_input = Decimal(str(ret_item.get("penalty_rate", 0.0)))
+            
+            rate = get_exchange_rate(curr, base_currency, force_refresh)
+            val_base = balance * rate
+            
+            # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35, Section 2 & Section 7)
+            if not is_accessible:
+                zakatable_val = Decimal("0.0")
+                zakat_due = Decimal("0.0")
+                rationale = (
+                    f"Locked Retirement Account: Since you lack immediate access/control, this asset is exempt from Zakat "
+                    f"under ownership rules (AAOIFI Standard No. 35, Sec. 2). Value: ${val_base:,.2f} is excluded."
+                )
+            else:
+                # Deduct taxes and penalties as immediate liabilities on the asset
+                net_multiplier = Decimal("1.0") - tax_rate_input - penalty_rate_input
+                if net_multiplier < Decimal("0.0"):
+                    net_multiplier = Decimal("0.0")
+                zakatable_val = val_base * net_multiplier
+                zakat_due = zakatable_val * zakat_rate
+                gross_zakatable_assets += zakatable_val
+                rationale = (
+                    f"Accessible Retirement Account: Subject to Zakat after deducting estimated tax ({tax_rate_input*100:.1f}%) "
+                    f"and early withdrawal penalty ({penalty_rate_input*100:.1f}%) (AMJA/NZF rulings). "
+                    f"Net zakatable value: ${zakatable_val:,.2f}, yielding ${zakat_due:,.2f} Zakat."
+                )
+                
+            breakdown.append({
+                "asset_class": "retirement_accounts",
+                "label": f"Retirement Account ({curr})",
+                "raw_value": float(balance),
+                "value_base": float(val_base),
+                "zakatable_value": float(zakatable_val),
+                "zakat_due": float(zakat_due),
+                "rationale": rationale
+            })
+            
         # --- 6. PROCESS LIABILITIES (DEDUCTIONS) ---
         # Fiqh Reference: AAOIFI Shari'ah Standard No. 35 (Zakah), Section 7 (Deductible Debts)
         # See E-Standards: https://aaoifi.com/e-standards/?lang=en
+        # Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35, Section 7)
         # Immediate short-term debts (payable within 30 days or the current month, like trade payables or credit cards)
         # can be deducted from gross wealth. Long-term mortgage principals or future interest-bearing liabilities are excluded.
         # See also NZF Debt Guide: https://nzf.org.uk/knowledge/zakat-on-debt/

@@ -308,6 +308,7 @@ def perform_compliance_screening(
         denom_label = "Current Market Cap (Fallback)"
         
     # 3. Business Activity Screen
+    # Standard Link: https://aaoifi.com/ss-21-financial-paper-shares-and-bonds/?lang=en (AAOIFI Shari'ah Standard No. 21: Section 2/1 - Business Objective Requirement)
     symbol = stock_data["symbol"]
     override = overrides.get(symbol, {})
     
@@ -341,6 +342,7 @@ def perform_compliance_screening(
             non_compliant_rev_pct = override.get("non_compliant_revenue_pct", 1.0)
             
     # 4. Financial Ratio Screen
+    # Standard Link: https://aaoifi.com/ss-21-financial-paper-shares-and-bonds/?lang=en (AAOIFI Shari'ah Standard No. 21: Section 3/4 - Quantitative Screens and Limits)
     debt_value = stock_data["total_debt"]
     # Cash screen includes Cash & Equivalents + Short Term Investments
     cash_value = stock_data["cash_equivalents"] + stock_data["short_term_investments"]
@@ -410,6 +412,7 @@ def calculate_zakat_metrics(stock_data: Dict[str, Any]) -> Dict[str, Any]:
     References:
     - AAOIFI Shari'ah Standard No. 35 (Zakah), item 4/2/4 (Pro-rata share of Net Zakatable Assets)
       Portal link: https://aaoifi.com/e-standards/?lang=en
+      Standard Link: https://aaoifi.com/e-standards/ (AAOIFI Shari'ah Standard No. 35: Zakah, Section 4/2/4)
     - AMJA Declaration on Zakat of Shares:
       Link: https://www.amjaonline.org/declaration-articles/zakat-on-shares-and-investments/
     

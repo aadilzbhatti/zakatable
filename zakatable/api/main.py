@@ -73,12 +73,26 @@ class RealEstateAssetInput(BaseModel):
     currency: str = Field("USD", example="USD")
     type: str = Field("primary", example="primary")  # primary, rental, flip
 
+class ReceivableInput(BaseModel):
+    amount: float = Field(..., example=3000.00)
+    currency: str = Field("USD", example="USD")
+    type: str = Field("good", example="good")  # good (performing), bad (non-performing/doubtful)
+
+class RetirementAccountInput(BaseModel):
+    balance: float = Field(..., example=50000.00)
+    currency: str = Field("USD", example="USD")
+    tax_rate: float = Field(0.20, example=0.20)      # Expected tax rate if withdrawn (default: 20%)
+    penalty_rate: float = Field(0.10, example=0.10)  # Expected early withdrawal penalty (default: 10%)
+    is_accessible: bool = Field(True, example=True)   # If False, locked (completely inaccessible, Zakat is 0 until accessible)
+
 class AssetsInput(BaseModel):
     cash: Optional[List[CashAssetInput]] = None
     precious_metals: Optional[List[PreciousMetalAssetInput]] = None
     stocks: Optional[List[StockAssetInput]] = None
     business_inventory: Optional[List[BusinessInventoryAssetInput]] = None
     real_estate: Optional[List[RealEstateAssetInput]] = None
+    receivables: Optional[List[ReceivableInput]] = None
+    retirement_accounts: Optional[List[RetirementAccountInput]] = None
 
 class ShortTermDebtInput(BaseModel):
     type: str = Field("debt", example="credit_card")
